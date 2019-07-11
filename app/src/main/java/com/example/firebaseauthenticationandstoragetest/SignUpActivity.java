@@ -117,6 +117,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                     final Intent i = new Intent(SignUpActivity.this,LoginActivity.class);
                     i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     startActivity(i);
+                    finish();
                 }
                 else{
                    if(task.getException() instanceof FirebaseAuthUserCollisionException)

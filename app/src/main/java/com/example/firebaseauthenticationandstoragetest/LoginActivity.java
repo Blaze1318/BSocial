@@ -30,7 +30,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         findViewById(R.id.tvSignUp).setOnClickListener(this);
         findViewById(R.id.btnLogin).setOnClickListener(this);
         usernameText = findViewById(R.id.etLoginEmail);
-        passwordText = findViewById(R.id.etPassword);
+        passwordText = findViewById(R.id.etLoginpass);
         progressBar = findViewById(R.id.progressBar);
     }
 
@@ -77,6 +77,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     final Intent i = new Intent(LoginActivity.this,CreateProfileActivity.class);
                     i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     startActivity(i);
+                    finish();
                 }
                 else{
                     if(task.getException() instanceof FirebaseAuthUserCollisionException)
