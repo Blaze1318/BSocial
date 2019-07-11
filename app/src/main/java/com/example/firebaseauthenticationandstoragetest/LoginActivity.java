@@ -29,6 +29,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         mAuth = FirebaseAuth.getInstance();
         findViewById(R.id.tvSignUp).setOnClickListener(this);
         findViewById(R.id.btnLogin).setOnClickListener(this);
+        findViewById(R.id.tvClickhere).setOnClickListener(this);
         usernameText = findViewById(R.id.etLoginEmail);
         passwordText = findViewById(R.id.etLoginpass);
         progressBar = findViewById(R.id.progressBar);
@@ -103,6 +104,11 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
             case R.id.btnLogin:
                 Loginuser();
+                break;
+
+            case R.id.tvClickhere:
+                Intent ii = new Intent(LoginActivity.this,ForgotPasswordActivity.class);
+                startActivity(ii);
                 break;
         }
     }
