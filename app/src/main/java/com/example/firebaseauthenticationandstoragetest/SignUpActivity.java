@@ -145,7 +145,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                 if(task.isSuccessful())
                 {
                     FirebaseUser user = mAuth.getCurrentUser();
-
+                    uploadImageToFirebaseStorage();
                     if(user != null && profileUrl != null)
                     {
                         UserProfileChangeRequest profile = new UserProfileChangeRequest.Builder()
@@ -214,8 +214,6 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
             try {
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(),uriProfileimage);
                 ivProfile.setImageBitmap(bitmap);
-
-                uploadImageToFirebaseStorage();
             } catch (IOException e) {
                 e.printStackTrace();
             }
