@@ -1,26 +1,47 @@
 package com.example.firebaseauthenticationandstoragetest;
 
 import android.content.Intent;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+
+import java.io.IOException;
 
 public class SignUpActivity extends AppCompatActivity implements View.OnClickListener {
-    EditText etEmail, etRemail, etPassword, etRepassword;
+    EditText etEmail, etRemail, etPassword, etRepassword , etDisplayName;
+    ImageView ivProfile;
+    private static final int CHOOSE_IMAGE = 101;
     ProgressBar progressBar;
     private FirebaseAuth mAuth;
+    private StorageReference mStorageRef;
+    private String profileUrl;
+
+    Uri uriProfileimage;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,19 +52,29 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
         etRemail = findViewById(R.id.etRemail);
         etPassword = findViewById(R.id.etPassword);
         etRepassword = findViewById(R.id.etRepassword);
+        etDisplayName = findViewById(R.id.etDisplayname);
         progressBar = findViewById(R.id.progressBar);
+        ivProfile = findViewById(R.id.ivProfile);
         findViewById(R.id.btnLogin).setOnClickListener(this);
+        findViewById(R.id.ivProfile).setOnClickListener(this);
 
     }
 
     private void Registeruser()
     {
 
-        String email = etEmail.getText().toString().trim();
+        final String email = etEmail.getText().toString().trim();
         String reemail = etRemail.getText().toString().trim();
         String password = etPassword.getText().toString().trim();
         String repassword = etRepassword.getText().toString().trim();
+        final String username = etDisplayName.getText().toString().trim();
 
+        if(username.isEmpty())
+        {
+            etDisplayName.setError("Display name Cannot Be Empty");
+            etDisplayName.requestFocus();
+            return;
+        }
         if (email.isEmpty())
         {
             etEmail.setError("Email is required");
@@ -113,11 +144,42 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                 progressBar.setVisibility(View.GONE);
                 if(task.isSuccessful())
                 {
+                    FirebaseUser user = mAuth.getCurrentUser();
+
+                    if(user != null && profileUrl != null)
+                    {
+                        UserProfileChangeRequest profile = new UserProfileChangeRequest.Builder()
+                                .setDisplayName(username)
+                                .setPhotoUri(Uri.parse(profileUrl))
+                                .build();
+
+                        user.updateProfile(profile).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if(task.isSuccessful())
+                                {
+                                    Toast.makeText(SignUpActivity.this, "Profile Saved!", Toast.LENGTH_SHORT).show();
+                                }
+                                else{
+                                    Toast.makeText(SignUpActivity.this, "Profile Not Saved!", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
+                    }
+
+                    user.sendEmailVerification()
+                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if (task.isSuccessful()) {
+                                        Log.d("Email:", "Email sent.");
+                                    }
+                                }
+                            });
                     Toast.makeText(SignUpActivity.this, "Registration Successful!", Toast.LENGTH_SHORT).show();
                     final Intent i = new Intent(SignUpActivity.this,LoginActivity.class);
-                    i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     startActivity(i);
-                    finish();
                 }
                 else{
                    if(task.getException() instanceof FirebaseAuthUserCollisionException)
@@ -133,6 +195,56 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
 
     }
 
+    private void ImageChooser()
+    {
+        Intent i = new Intent();
+        i.setType("image/*");
+        i.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(i,"Select Profile Image"),CHOOSE_IMAGE);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(requestCode == CHOOSE_IMAGE && resultCode == RESULT_OK && data.getData() != null)
+        {
+            uriProfileimage = data.getData();
+
+            try {
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(),uriProfileimage);
+                ivProfile.setImageBitmap(bitmap);
+
+                uploadImageToFirebaseStorage();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void uploadImageToFirebaseStorage()
+    {
+        mStorageRef = FirebaseStorage.getInstance().getReference("profilepics/"+System.currentTimeMillis()+".jpg");
+        if(uriProfileimage != null)
+        {
+            progressBar.setVisibility(View.VISIBLE);
+            mStorageRef.putFile(uriProfileimage)
+                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            progressBar.setVisibility(View.GONE);
+                            profileUrl = taskSnapshot.getMetadata().getReference().getDownloadUrl().toString();
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(SignUpActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+        }
+    }
+
     @Override
     public void onClick(View view) {
         switch(view.getId())
@@ -140,6 +252,14 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
             case R.id.btnLogin:
               Registeruser();
               break;
+
+            case R.id.ivProfile:
+                ImageChooser();
+                break;
+
+            case R.id.tvLogin:
+                Intent i = new Intent(SignUpActivity.this,LoginActivity.class);
+                startActivity(i);
         }
     }
 
