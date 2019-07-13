@@ -9,39 +9,12 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:background="@color/dodgerblue"
+        android:background="@drawable/gradient_background"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <LinearLayout
-            android:id="@+id/linearLayout2"
-            android:layout_width="421dp"
-            android:layout_height="141dp"
-            android:layout_marginBottom="604dp"
-            android:background="@color/white"
-            android:gravity="center"
-            android:orientation="vertical"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <TextView
-                android:id="@+id/tvLogo"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="100dp"
-                android:layout_marginBottom="60dp"
-                android:gravity="center"
-                android:text="SIGN UP"
-                android:textColor="@color/dodgerblue"
-                android:textSize="25sp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-        </LinearLayout>
 
         <Button
             android:id="@+id/btnLogin"
@@ -50,7 +23,7 @@
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
             android:layout_marginBottom="8dp"
-            android:background="@color/white"
+            android:background="@drawable/edittext_layout"
             android:text="Sign Up"
             android:textColor="@color/dodgerblue"
             app:layout_constraintBottom_toTopOf="@+id/tvAccount"
@@ -97,8 +70,10 @@
             android:layout_marginStart="8dp"
             android:layout_marginTop="24dp"
             android:layout_marginEnd="8dp"
+            android:background="@drawable/edittext_layout"
             android:ems="10"
             android:hint="Email"
+            android:drawableLeft="@drawable/ic_email_black_24dp"
             android:inputType="textEmailAddress"
             android:textColor="@color/white"
             app:layout_constraintEnd_toEndOf="parent"
@@ -113,10 +88,12 @@
             android:layout_marginStart="8dp"
             android:layout_marginTop="24dp"
             android:layout_marginEnd="8dp"
+            android:background="@drawable/edittext_layout"
             android:ems="10"
             android:hint="Retype Email"
-            android:textColor="@color/white"
+            android:drawableLeft="@drawable/ic_email_black_24dp"
             android:inputType="textEmailAddress"
+            android:textColor="@color/white"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/etEmail" />
@@ -128,10 +105,12 @@
             android:layout_marginStart="8dp"
             android:layout_marginTop="24dp"
             android:layout_marginEnd="8dp"
+            android:background="@drawable/edittext_layout"
             android:ems="10"
             android:hint="Password"
-            android:textColor="@color/white"
+            android:drawableLeft="@drawable/ic_lock_black_24dp"
             android:inputType="textPassword"
+            android:textColor="@color/white"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/etRemail" />
@@ -143,10 +122,12 @@
             android:layout_marginStart="8dp"
             android:layout_marginTop="24dp"
             android:layout_marginEnd="8dp"
+            android:background="@drawable/edittext_layout"
             android:ems="10"
             android:hint="Retype Password"
-            android:textColor="@color/white"
+            android:drawableLeft="@drawable/ic_lock_black_24dp"
             android:inputType="textPassword"
+            android:textColor="@color/white"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/etPassword" />
@@ -155,10 +136,11 @@
             android:id="@+id/ivProfile"
             android:layout_width="196dp"
             android:layout_height="143dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="32dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/linearLayout2"
+
+            app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/defaultimg" />
 
         <EditText
@@ -168,8 +150,10 @@
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
+            android:background="@drawable/edittext_layout"
             android:ems="10"
             android:hint="Displayname"
+            android:drawableLeft="@drawable/ic_person_black_24dp"
             android:inputType="textPersonName"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

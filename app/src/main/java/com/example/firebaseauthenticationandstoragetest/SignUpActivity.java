@@ -40,6 +40,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
     private FirebaseAuth mAuth;
     private StorageReference mStorageRef;
     private String profileUrl;
+    private String username;
 
     Uri uriProfileimage;
     @Override
@@ -67,7 +68,8 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
         String reemail = etRemail.getText().toString().trim();
         String password = etPassword.getText().toString().trim();
         String repassword = etRepassword.getText().toString().trim();
-        final String username = etDisplayName.getText().toString().trim();
+        username = etDisplayName.getText().toString().trim();
+
 
         if(username.isEmpty())
         {
@@ -146,26 +148,6 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                 {
                     FirebaseUser user = mAuth.getCurrentUser();
                     uploadImageToFirebaseStorage();
-                    if(user != null && profileUrl != null)
-                    {
-                        UserProfileChangeRequest profile = new UserProfileChangeRequest.Builder()
-                                .setDisplayName(username)
-                                .setPhotoUri(Uri.parse(profileUrl))
-                                .build();
-
-                        user.updateProfile(profile).addOnCompleteListener(new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                if(task.isSuccessful())
-                                {
-                                    Toast.makeText(SignUpActivity.this, "Profile Saved!", Toast.LENGTH_SHORT).show();
-                                }
-                                else{
-                                    Toast.makeText(SignUpActivity.this, "Profile Not Saved!", Toast.LENGTH_SHORT).show();
-                                }
-                            }
-                        });
-                    }
 
                     user.sendEmailVerification()
                             .addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -180,6 +162,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                     final Intent i = new Intent(SignUpActivity.this,LoginActivity.class);
                     i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     startActivity(i);
+                    finish();
                 }
                 else{
                    if(task.getException() instanceof FirebaseAuthUserCollisionException)
@@ -222,16 +205,36 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
 
     private void uploadImageToFirebaseStorage()
     {
-        mStorageRef = FirebaseStorage.getInstance().getReference("profilepics/"+System.currentTimeMillis()+".jpg");
+        mStorageRef = FirebaseStorage.getInstance().getReference().child("profilepics");
+        StorageReference imagepicker = mStorageRef.child(uriProfileimage.getLastPathSegment());
         if(uriProfileimage != null)
         {
             progressBar.setVisibility(View.VISIBLE);
-            mStorageRef.putFile(uriProfileimage)
+            imagepicker.putFile(uriProfileimage)
                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                             progressBar.setVisibility(View.GONE);
                             profileUrl = taskSnapshot.getMetadata().getReference().getDownloadUrl().toString();
+
+                            UserProfileChangeRequest profile = new UserProfileChangeRequest.Builder()
+                                    .setDisplayName(username)
+                                    .setPhotoUri(Uri.parse(profileUrl))
+                                    .build();
+
+                            FirebaseUser user = mAuth.getCurrentUser();
+                            user.updateProfile(profile).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if(task.isSuccessful())
+                                    {
+                                        Toast.makeText(SignUpActivity.this, "Profile Saved!", Toast.LENGTH_SHORT).show();
+                                    }
+                                    else{
+                                        Toast.makeText(SignUpActivity.this, "Profile Not Saved!", Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            });
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
@@ -240,6 +243,8 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                             Toast.makeText(SignUpActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
                         }
                     });
+
+
         }
     }
 

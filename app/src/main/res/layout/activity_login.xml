@@ -9,39 +9,11 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:background="@color/dodgerblue"
+        android:background="@drawable/gradient_background"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
-
-        <LinearLayout
-            android:id="@+id/linearLayout2"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="604dp"
-            android:background="@color/white"
-            android:gravity="center"
-            android:orientation="vertical"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <TextView
-                android:id="@+id/tvLogo"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="100dp"
-                android:layout_marginBottom="60dp"
-                android:gravity="center"
-                android:text="FireBase Tester"
-                android:textColor="@color/dodgerblue"
-                android:textSize="20sp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-        </LinearLayout>
 
         <Button
             android:id="@+id/btnLogin"
@@ -50,7 +22,7 @@
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
             android:layout_marginBottom="50dp"
-            android:background="@color/white"
+            android:background="@drawable/edittext_layout"
             android:text="Login"
             android:textColor="@color/dodgerblue"
             app:layout_constraintBottom_toTopOf="@+id/tvAccount"
@@ -61,20 +33,21 @@
             android:id="@+id/tvAccount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="50dp"
+            android:layout_marginStart="8dp"
             android:layout_marginBottom="16dp"
             android:text="Don't Have A Account?"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.506"
+            app:layout_constraintHorizontal_bias="0.351"
             app:layout_constraintStart_toStartOf="parent" />
 
         <TextView
             android:id="@+id/tvSignUp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
             android:text="Sign Up"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.05"
             app:layout_constraintStart_toEndOf="@+id/tvAccount"
             app:layout_constraintTop_toTopOf="@+id/tvAccount" />
 
@@ -94,15 +67,17 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="32dp"
+            android:layout_marginTop="100dp"
             android:layout_marginEnd="8dp"
             android:ems="10"
             android:hint="Email"
-            android:textColor="@color/white"
+            android:drawableLeft="@drawable/ic_email_black_24dp"
+            android:background="@drawable/edittext_layout"
             android:inputType="textEmailAddress"
+            android:textColor="@color/dodgerblue"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/linearLayout2" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <EditText
             android:id="@+id/etLoginpass"
@@ -113,6 +88,8 @@
             android:layout_marginEnd="8dp"
             android:ems="10"
             android:hint="Password"
+            android:drawableLeft="@drawable/ic_lock_black_24dp"
+            android:background="@drawable/edittext_layout"
             android:textColor="@color/white"
             android:inputType="textPassword"
             app:layout_constraintEnd_toEndOf="parent"
@@ -123,7 +100,6 @@
             android:id="@+id/tvForgotpass"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
             android:layout_marginBottom="40dp"
             android:text="Forgot Password?"
             app:layout_constraintBottom_toBottomOf="parent"
