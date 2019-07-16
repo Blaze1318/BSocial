@@ -5,7 +5,7 @@ import android.os.Bundle;
 
 
 import com.example.firebaseauthenticationandstoragetest.Fragments.HomeFragment;
-import com.example.firebaseauthenticationandstoragetest.Fragments.MessageFragment;
+import com.example.firebaseauthenticationandstoragetest.Fragments.UsersFragment;
 import com.example.firebaseauthenticationandstoragetest.Fragments.ProfileFragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
@@ -36,10 +36,8 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import android.view.Menu;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class HomeActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -57,7 +55,7 @@ public class HomeActivity extends AppCompatActivity
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        //Firebase Variables
+        //Firebase Instances
         mAuth = FirebaseAuth.getInstance();
         user = mAuth.getCurrentUser();
         database = FirebaseDatabase.getInstance();
@@ -93,27 +91,6 @@ public class HomeActivity extends AppCompatActivity
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.home, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
@@ -127,9 +104,9 @@ public class HomeActivity extends AppCompatActivity
         } else if (id == R.id.nav_profile) {
             getSupportActionBar().setTitle("Profile");
             getSupportFragmentManager().beginTransaction().replace(R.id.container,new ProfileFragment()).commit();
-        } else if (id == R.id.nav_message) {
-            getSupportActionBar().setTitle("Message");
-            getSupportFragmentManager().beginTransaction().replace(R.id.container,new MessageFragment()).commit();
+        } else if (id == R.id.nav_users) {
+            getSupportActionBar().setTitle("Users");
+            getSupportFragmentManager().beginTransaction().replace(R.id.container,new UsersFragment()).commit();
         }  else if (id == R.id.nav_logout) {
             mAuth.signOut();
             Intent i = new Intent(HomeActivity.this,LoginActivity.class);
@@ -179,7 +156,8 @@ public class HomeActivity extends AppCompatActivity
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                Toast.makeText(HomeActivity.this, "Unexpected Error Occurred", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(HomeActivity.this, "Unexpected Error Occurred", Toast.LENGTH_SHORT).show();
+                Log.d("onCancelled: ", databaseError.getMessage());
             }
         });
 
@@ -190,6 +168,7 @@ public class HomeActivity extends AppCompatActivity
     protected void onStart() {
         super.onStart();
 
+        //checking if user is currently logged on
         FirebaseUser user = mAuth.getCurrentUser();
         if(user == null)
         {
