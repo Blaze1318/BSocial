@@ -26,22 +26,34 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.IOException;
+import java.util.HashMap;
 
 public class SignUpActivity extends AppCompatActivity implements View.OnClickListener {
     EditText etEmail, etRemail, etPassword, etRepassword , etDisplayName;
     ImageView ivProfile;
     private static final int CHOOSE_IMAGE = 101;
     ProgressBar progressBar;
+
+    //Firebase
     private FirebaseAuth mAuth;
+    private FirebaseDatabase database;
+    private FirebaseUser user;
+    private DatabaseReference ref;
     private StorageReference mStorageRef;
-    private String profileUrl;
     private String username;
 
+    //Storage path
+    String storagePath = "Users_Profile_Imgs/";
+
+    //check for image
+    String profileImage = "image";
     Uri uriProfileimage;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -146,8 +158,31 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                 progressBar.setVisibility(View.GONE);
                 if(task.isSuccessful())
                 {
-                    FirebaseUser user = mAuth.getCurrentUser();
-                    uploadImageToFirebaseStorage();
+                    user = mAuth.getCurrentUser();
+                    //Storing user info within realtime database
+                    String email = user.getEmail();
+                    String userid = user.getUid();
+                    String name = username;
+
+                    //storing info using hashmap
+                    HashMap<Object,String> userinfo = new HashMap<>();
+                    userinfo.put("email",email);
+                    userinfo.put("userid",userid);
+                    userinfo.put("name",name);
+                    userinfo.put("image","");
+
+                    //getting firebase database instance
+                    database = FirebaseDatabase.getInstance();
+
+                    //creating database reference
+                    ref = database.getReference("Users");
+                    //place hashmap data within database
+                    ref.child(userid).setValue(userinfo);
+
+                    //uploading and updating user profile image
+                    uploadImageToFirebaseStorage(uriProfileimage);
+
+
 
                     user.sendEmailVerification()
                             .addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -160,7 +195,6 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                             });
                     Toast.makeText(SignUpActivity.this, "Registration Successful!", Toast.LENGTH_SHORT).show();
                     final Intent i = new Intent(SignUpActivity.this,LoginActivity.class);
-                    i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     startActivity(i);
                     finish();
                 }
@@ -203,49 +237,58 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
         }
     }
 
-    private void uploadImageToFirebaseStorage()
+    private void uploadImageToFirebaseStorage(Uri uri)
     {
-        mStorageRef = FirebaseStorage.getInstance().getReference().child("profilepics");
-        StorageReference imagepicker = mStorageRef.child(uriProfileimage.getLastPathSegment());
-        if(uriProfileimage != null)
-        {
-            progressBar.setVisibility(View.VISIBLE);
-            imagepicker.putFile(uriProfileimage)
-                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                            progressBar.setVisibility(View.GONE);
-                            profileUrl = taskSnapshot.getMetadata().getReference().getDownloadUrl().toString();
+        user = mAuth.getCurrentUser();
 
-                            UserProfileChangeRequest profile = new UserProfileChangeRequest.Builder()
-                                    .setDisplayName(username)
-                                    .setPhotoUri(Uri.parse(profileUrl))
-                                    .build();
+        //creating image url path
+        String filePathAndName = storagePath + "" + profileImage + "_"+ user.getUid();
 
-                            FirebaseUser user = mAuth.getCurrentUser();
-                            user.updateProfile(profile).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    if(task.isSuccessful())
-                                    {
-                                        Toast.makeText(SignUpActivity.this, "Profile Saved!", Toast.LENGTH_SHORT).show();
-                                    }
-                                    else{
-                                        Toast.makeText(SignUpActivity.this, "Profile Not Saved!", Toast.LENGTH_SHORT).show();
-                                    }
-                                }
-                            });
+        mStorageRef = FirebaseStorage.getInstance().getReference();
+        StorageReference mStorage2 = mStorageRef.child(filePathAndName);
+
+        mStorage2.putFile(uri)
+                .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        Task<Uri> uriTask = taskSnapshot.getStorage().getDownloadUrl();
+                        while(!uriTask.isSuccessful());
+                        Uri downloadUrl = uriTask.getResult();
+
+                        //check if image is uploaded or not
+                        if(uriTask.isSuccessful()) {
+                            //image uploaded
+                            HashMap<String, Object> results = new HashMap<>();
+                            results.put(profileImage, downloadUrl.toString());
+
+                            ref.child(user.getUid()).updateChildren(results)
+                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+                                            //do nothing
+                                        }
+                                    })
+                                    .addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            Toast.makeText(SignUpActivity.this, "Image not uploaded", Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
                         }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Toast.makeText(SignUpActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                        else{
+                            //not uploaded
+                            Toast.makeText(SignUpActivity.this, "Error Uploading Profile Image", Toast.LENGTH_SHORT).show();
                         }
-                    });
 
+                    }
+                })
 
-        }
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(SignUpActivity.this, "Profile Image Not Uploaded", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     @Override

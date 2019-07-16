@@ -38,8 +38,8 @@
             android:text="Don't Have A Account?"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.351"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="@+id/tvForgotpass" />
 
         <TextView
             android:id="@+id/tvSignUp"

@@ -16,7 +16,6 @@
             android:label="@string/title_activity_home"
             android:theme="@style/AppTheme.NoActionBar"></activity>
         <activity android:name=".ForgotPasswordActivity" />
-        <activity android:name=".MessagesActivity" />
         <activity android:name=".SignUpActivity" />
         <activity android:name=".LoginActivity" />
         <activity android:name=".SplashScreenActivity">
