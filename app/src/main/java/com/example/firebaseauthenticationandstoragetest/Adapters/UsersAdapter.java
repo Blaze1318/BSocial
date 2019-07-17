@@ -1,6 +1,7 @@
 package com.example.firebaseauthenticationandstoragetest.Adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +12,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.firebaseauthenticationandstoragetest.ChatActivity;
 import com.example.firebaseauthenticationandstoragetest.Models.UsersModel;
 import com.example.firebaseauthenticationandstoragetest.R;
 import com.squareup.picasso.Picasso;
@@ -39,6 +41,7 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.MyHolder> {
     @Override
     public void onBindViewHolder(@NonNull MyHolder holder, int position) {
         //get data
+        final String userid = usersList.get(position).getUserid();
         String userProfileimage = usersList.get(position).getImage();
         String userName = usersList.get(position).getName();
         final String userEmail = usersList.get(position).getEmail();
@@ -57,7 +60,9 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.MyHolder> {
         holder.mAvatarIV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(context, ""+userEmail, Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(context, ChatActivity.class);
+                intent.putExtra("userid",userid);
+                context.startActivity(intent);
             }
         });
     }

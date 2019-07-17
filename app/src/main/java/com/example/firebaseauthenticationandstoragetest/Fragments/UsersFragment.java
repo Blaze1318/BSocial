@@ -57,6 +57,7 @@ public class UsersFragment extends Fragment {
     UsersAdapter usersAdapter;
     List<UsersModel> usersModels;
 
+
     public UsersFragment() {
         // Required empty public constructor
     }

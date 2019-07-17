@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 
 
+import com.example.firebaseauthenticationandstoragetest.Fragments.ChatFragment;
 import com.example.firebaseauthenticationandstoragetest.Fragments.HomeFragment;
 import com.example.firebaseauthenticationandstoragetest.Fragments.UsersFragment;
 import com.example.firebaseauthenticationandstoragetest.Fragments.ProfileFragment;
@@ -107,6 +108,9 @@ public class HomeActivity extends AppCompatActivity
         } else if (id == R.id.nav_users) {
             getSupportActionBar().setTitle("Users");
             getSupportFragmentManager().beginTransaction().replace(R.id.container,new UsersFragment()).commit();
+        }  else if (id == R.id.nav_message) {
+            getSupportActionBar().setTitle("Chats");
+            getSupportFragmentManager().beginTransaction().replace(R.id.container,new ChatFragment()).commit();
         }  else if (id == R.id.nav_logout) {
             mAuth.signOut();
             Intent i = new Intent(HomeActivity.this,LoginActivity.class);

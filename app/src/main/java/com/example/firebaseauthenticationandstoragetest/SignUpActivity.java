@@ -179,9 +179,11 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                     //place hashmap data within database
                     ref.child(userid).setValue(userinfo);
 
-                    //uploading and updating user profile image
-                    uploadImageToFirebaseStorage(uriProfileimage);
 
+                    if(uriProfileimage != null) {
+                        //uploading and updating user profile image if one exist
+                        uploadImageToFirebaseStorage(uriProfileimage);
+                    }
 
 
                     user.sendEmailVerification()
