@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.MenuItemCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
@@ -13,6 +14,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Adapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -20,6 +22,8 @@ import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.firebaseauthenticationandstoragetest.Adapters.ChatAdapter;
+import com.example.firebaseauthenticationandstoragetest.Models.ChatModel;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -30,7 +34,9 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 
 public class ChatActivity extends AppCompatActivity {
@@ -48,8 +54,16 @@ public class ChatActivity extends AppCompatActivity {
     FirebaseDatabase firebaseDatabase;
     DatabaseReference databaseReference;
 
+    //checking if user seen message or not
+    ValueEventListener seenListener;
+    DatabaseReference seenRef;
+
+    List<ChatModel> chatModelList;
+    ChatAdapter chatAdapter;
+
     String recipientId;
     String myId;
+    String recipientImage;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,6 +78,13 @@ public class ChatActivity extends AppCompatActivity {
         userstatusTV = findViewById(R.id.userStatus);
         chatET = findViewById(R.id.messageEt);
         sendIB = findViewById(R.id.ibSend);
+
+        //Setting up RecyclerView and layout
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        linearLayoutManager.setStackFromEnd(true);
+
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setLayoutManager(linearLayoutManager);
 
         //firebase instance
         mUser = FirebaseAuth.getInstance();
@@ -85,11 +106,11 @@ public class ChatActivity extends AppCompatActivity {
                 for(DataSnapshot ds : dataSnapshot.getChildren())
                 {
                     String name = ""+ds.child("name").getValue();
-                    String image = ""+ds.child("image").getValue();
+                    recipientImage = ""+ds.child("image").getValue();
 
                     nameTV.setText(name);
                     try{
-                        Picasso.get().load(image).placeholder(R.drawable.ic_mood_black_24dp).into(profileIV);
+                        Picasso.get().load(recipientImage).placeholder(R.drawable.ic_mood_black_24dp).into(profileIV);
                     }catch (Exception e)
                     {
                         Picasso.get().load(R.drawable.ic_mood_black_24dp).into(profileIV);
@@ -119,15 +140,77 @@ public class ChatActivity extends AppCompatActivity {
             }
         });
 
+        readMessages();
+        seenMessage();
+
+    }
+
+    private void seenMessage() {
+        seenRef = FirebaseDatabase.getInstance().getReference("Chats");
+        seenListener = seenRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for(DataSnapshot ds : dataSnapshot.getChildren())
+                {
+                    ChatModel chat = ds.getValue(ChatModel.class);
+                    if(chat.getReceiver().equals(myId) && chat.getSender().equals(recipientId))
+                    {
+                        HashMap<String, Object> hasSeen = new HashMap<>();
+                        hasSeen.put("isSeen",true);
+                        ds.getRef().updateChildren(hasSeen);
+                    }
+
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private void readMessages() {
+        chatModelList = new ArrayList<>();
+
+        DatabaseReference dR = FirebaseDatabase.getInstance().getReference("Chats");
+        dR.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                chatModelList.clear();
+                for(DataSnapshot ds : dataSnapshot.getChildren())
+                {
+                    ChatModel chat = ds.getValue(ChatModel.class);
+                    if(chat.getReceiver().equals(myId) && chat.getSender().equals(recipientId) ||
+                            chat.getReceiver().equals(recipientId) && chat.getSender().equals(myId))
+                    {
+                        chatModelList.add(chat);
+                    }
+                    chatAdapter = new ChatAdapter(ChatActivity.this,chatModelList,recipientImage);
+                    chatAdapter.notifyDataSetChanged();
+
+                    recyclerView.setAdapter(chatAdapter);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
     }
 
     private void sendMessage(String message) {
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
 
+
+        String timeStamp = String.valueOf(System.currentTimeMillis());
         HashMap<String,Object> h = new HashMap<>();
         h.put("sender",myId);
         h.put("receiver",recipientId);
         h.put("message",message);
+        h.put("timestamp",timeStamp);
+        h.put("isSeen",false);
         databaseReference.child("Chats").push().setValue(h);
 
         //reset edit text after sending a message
@@ -170,5 +253,11 @@ public class ChatActivity extends AppCompatActivity {
     protected void onStart() {
         checkUserstatus();
         super.onStart();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        seenRef.removeEventListener(seenListener);
     }
 }

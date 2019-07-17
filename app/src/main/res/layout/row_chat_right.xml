@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="10dp">
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <com.blogspot.atifsoftwares.circularimageview.CircularImageView
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:id="@+id/chatLeftprofileIV"
+            app:c_border="@null"
+            android:visibility="gone"
+            android:src="@drawable/ic_mood_black_24dp"
+            />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+
+            <TextView
+                android:id="@+id/chatMessageTV"
+                android:textSize="16sp"
+                android:padding="15dp"
+                android:text="Receiver Message"
+                android:background="@drawable/bg_sender"
+                android:textColor="@color/dodgerblue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="end"
+                android:layout_gravity="end"
+                android:textAlignment="textEnd"
+                />
+
+            <TextView
+                android:id="@+id/timeTV"
+                android:textSize="12sp"
+                android:text="7/17/2019 10:51am"
+                android:textColor="@color/dodgerblue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_marginEnd="5dp"
+                android:textAlignment="textEnd"
+                />
+
+        </LinearLayout>
+
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/isSeenTV"
+        android:gravity="end"
+        android:textAlignment="textEnd"
+        android:text="delivered"
+        />
+
+
+</LinearLayout>
