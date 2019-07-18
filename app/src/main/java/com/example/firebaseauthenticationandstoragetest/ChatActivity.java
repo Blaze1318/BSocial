@@ -27,6 +27,13 @@ import android.widget.Toast;
 
 import com.example.firebaseauthenticationandstoragetest.Adapters.ChatAdapter;
 import com.example.firebaseauthenticationandstoragetest.Models.ChatModel;
+import com.example.firebaseauthenticationandstoragetest.Models.UsersModel;
+import com.example.firebaseauthenticationandstoragetest.Notifications.APIService;
+import com.example.firebaseauthenticationandstoragetest.Notifications.Client;
+import com.example.firebaseauthenticationandstoragetest.Notifications.Data;
+import com.example.firebaseauthenticationandstoragetest.Notifications.Response;
+import com.example.firebaseauthenticationandstoragetest.Notifications.Sender;
+import com.example.firebaseauthenticationandstoragetest.Notifications.Token;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -42,6 +49,9 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+
+import retrofit2.Call;
+import retrofit2.Callback;
 
 
 public class ChatActivity extends AppCompatActivity {
@@ -69,6 +79,9 @@ public class ChatActivity extends AppCompatActivity {
     String recipientId;
     String myId;
     String recipientImage;
+
+    APIService service;
+    boolean notify = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -94,6 +107,7 @@ public class ChatActivity extends AppCompatActivity {
         //firebase instance
         mUser = FirebaseAuth.getInstance();
 
+        service = Client.getRetrofit("https://fcm.googleapis.com/").create(APIService.class);
         Intent intent = getIntent();
         recipientId = intent.getStringExtra("userid");
 
@@ -158,6 +172,7 @@ public class ChatActivity extends AppCompatActivity {
         sendIB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                notify = true;
                 String message = chatET.getText().toString().trim();
 
                 if(TextUtils.isEmpty(message))
@@ -167,6 +182,8 @@ public class ChatActivity extends AppCompatActivity {
                 else{
                     sendMessage(message);
                 }
+                //reset edit text after sending a message
+                chatET.setText("");
             }
         });
 
@@ -266,8 +283,59 @@ public class ChatActivity extends AppCompatActivity {
         h.put("isSeen",false);
         databaseReference.child("Chats").push().setValue(h);
 
-        //reset edit text after sending a message
-        chatET.setText("");
+        final String msg = message;
+        DatabaseReference database = FirebaseDatabase.getInstance().getReference("Users").child(myId);
+        database.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                UsersModel model = dataSnapshot.getValue(UsersModel.class);
+
+                if(notify)
+                {
+                    senNotification(recipientId,model.getName(),msg);
+                }
+                notify = false;
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private void senNotification(final String recipientId,final  String name, final String msg) {
+        DatabaseReference allTokens = FirebaseDatabase.getInstance().getReference("Tokens");
+        Query query = allTokens.orderByKey().equalTo(recipientId);
+        query.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot ds : dataSnapshot.getChildren())
+                {
+                    Token token = ds.getValue(Token.class);
+                    Data data = new Data(myId,name+":"+msg,"New Message",recipientId,R.drawable.ic_mood_black_24dp);
+                    Sender sender = new Sender(data,token.getToken());
+
+                    service.sendNotification(sender)
+                            .enqueue(new Callback<Response>() {
+                                @Override
+                                public void onResponse(Call<Response> call, retrofit2.Response<Response> response) {
+                                    Toast.makeText(ChatActivity.this, ""+response.message(), Toast.LENGTH_SHORT).show();
+                                }
+
+                                @Override
+                                public void onFailure(Call<Response> call, Throwable t) {
+
+                                }
+                            });
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
     }
 
     private void checkUserstatus()

@@ -1,6 +1,7 @@
 package com.example.firebaseauthenticationandstoragetest;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 
@@ -8,6 +9,7 @@ import com.example.firebaseauthenticationandstoragetest.Fragments.ChatFragment;
 import com.example.firebaseauthenticationandstoragetest.Fragments.HomeFragment;
 import com.example.firebaseauthenticationandstoragetest.Fragments.UsersFragment;
 import com.example.firebaseauthenticationandstoragetest.Fragments.ProfileFragment;
+import com.example.firebaseauthenticationandstoragetest.Notifications.Token;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -30,6 +32,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.squareup.picasso.Picasso;
 
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -49,6 +52,8 @@ public class HomeActivity extends AppCompatActivity
     private FirebaseDatabase database;
     private DatabaseReference ref;
 
+    private String myUID;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,6 +66,7 @@ public class HomeActivity extends AppCompatActivity
         user = mAuth.getCurrentUser();
         database = FirebaseDatabase.getInstance();
         ref = database.getReference("Users");
+        myUID = mAuth.getUid();
 
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -79,8 +85,44 @@ public class HomeActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         updateUserinfo();
+        //update token
+        updateToken(FirebaseInstanceId.getInstance().getToken());
+
         getSupportFragmentManager().beginTransaction().replace(R.id.container,new HomeFragment()).commit();
+
+        checkuserStatus();
     }
+
+    public void updateToken(String token)
+    {
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Tokens");
+        Token mToken = new Token(token);
+        ref.child(myUID).setValue(mToken);
+
+    }
+
+    private void checkuserStatus()
+    {
+        //checking if user is currently logged on
+        FirebaseUser user = mAuth.getCurrentUser();
+        if(user == null)
+        {
+            Intent i = new Intent(HomeActivity.this, LoginActivity.class);
+            startActivity(i);
+            finish();
+        }
+        else{
+
+            myUID = mAuth.getUid();
+
+            //Saving user id within shared preferences
+            SharedPreferences sp = getSharedPreferences("SP_USER",MODE_PRIVATE);
+            SharedPreferences.Editor  editor = sp.edit();
+            editor.putString("Current_USERID",myUID);
+            editor.apply();
+        }
+    }
+
 
     @Override
     public void onBackPressed() {
@@ -169,16 +211,17 @@ public class HomeActivity extends AppCompatActivity
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        checkuserStatus();
+    }
+
+    @Override
     protected void onStart() {
         super.onStart();
 
         //checking if user is currently logged on
-        FirebaseUser user = mAuth.getCurrentUser();
-        if(user == null)
-        {
-            Intent i = new Intent(HomeActivity.this, LoginActivity.class);
-            startActivity(i);
-            finish();
-        }
+        checkuserStatus();
+
     }
 }
