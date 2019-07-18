@@ -170,7 +170,8 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                     userinfo.put("userid",userid);
                     userinfo.put("name",name);
                     userinfo.put("image","");
-
+                    userinfo.put("onlineStatus","online");
+                    userinfo.put("typingTo","no one");
                     //getting firebase database instance
                     database = FirebaseDatabase.getInstance();
 
