@@ -14,6 +14,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -38,6 +39,7 @@ import java.util.HashMap;
 public class SignUpActivity extends AppCompatActivity implements View.OnClickListener {
     EditText etEmail, etRemail, etPassword, etRepassword , etDisplayName;
     ImageView ivProfile;
+    TextView tvLogin;
     private static final int CHOOSE_IMAGE = 101;
     ProgressBar progressBar;
 
@@ -66,10 +68,12 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
         etPassword = findViewById(R.id.etPassword);
         etRepassword = findViewById(R.id.etRepassword);
         etDisplayName = findViewById(R.id.etDisplayname);
+        tvLogin = findViewById(R.id.tvLogin);
         progressBar = findViewById(R.id.progressBar);
         ivProfile = findViewById(R.id.ivProfile);
         findViewById(R.id.btnLogin).setOnClickListener(this);
         findViewById(R.id.ivProfile).setOnClickListener(this);
+        findViewById(R.id.tvLogin).setOnClickListener(this);
 
     }
 

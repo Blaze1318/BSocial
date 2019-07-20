@@ -6,6 +6,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
@@ -32,10 +33,12 @@ public class FirebaseMessaging extends FirebaseMessagingService {
         String getCurrentUser = sp.getString("Current_USERID","None");
 
         String sent = remoteMessage.getData().get("body");
+       // String msg = remoteMessage.getData().get("message");
         String user = remoteMessage.getData().get("user");
 
         Log.d("Sent: ", sent);
         Log.d("User: ", user);
+        //Log.d("Message",msg);
 
         FirebaseUser fUser = FirebaseAuth.getInstance().getCurrentUser();
         if(fUser != null )
@@ -97,15 +100,20 @@ public class FirebaseMessaging extends FirebaseMessagingService {
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pIntent = PendingIntent.getActivity(this,i,intent,PendingIntent.FLAG_ONE_SHOT);
 
+        NotificationCompat.InboxStyle inboxStyle = new NotificationCompat.InboxStyle();
         Uri defSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
                 .setSmallIcon(Integer.parseInt(icon))
                 .setContentText(body)
                 .setContentTitle(title)
+                .setGroup("GroupMessage")
                 .setAutoCancel(true)
                 .setSound(defSound)
+                .setVibrate(new long[]{1000,1000,1000,1000})
+                .setLights(Color.RED,3000,3000)
+                .setStyle(inboxStyle)
                 .setContentIntent(pIntent);
-
+                inboxStyle.addLine(body);
         NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
         int j = 0;
         if(i > 0)
