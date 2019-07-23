@@ -104,6 +104,7 @@ public class ChatActivity extends AppCompatActivity {
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(linearLayoutManager);
 
+
         //firebase instance
         mUser = FirebaseAuth.getInstance();
 
@@ -260,6 +261,7 @@ public class ChatActivity extends AppCompatActivity {
                     chatAdapter.notifyDataSetChanged();
 
                     recyclerView.setAdapter(chatAdapter);
+                    recyclerView.scrollToPosition(chatAdapter.getItemCount()-1);
                 }
             }
 
@@ -320,7 +322,7 @@ public class ChatActivity extends AppCompatActivity {
                             .enqueue(new Callback<Response>() {
                                 @Override
                                 public void onResponse(Call<Response> call, retrofit2.Response<Response> response) {
-                                    Toast.makeText(ChatActivity.this, ""+response.message(), Toast.LENGTH_SHORT).show();
+                                    //Toast.makeText(ChatActivity.this, ""+response.message(), Toast.LENGTH_SHORT).show();
                                 }
 
                                 @Override

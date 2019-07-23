@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.text.format.DateFormat;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -87,7 +88,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.MyHolder>{
 
             }
 
-            //set up click listener for delete dialog
+         /*   //set up click listener for delete dialog
             holder.linearLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -111,7 +112,33 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.MyHolder>{
 
                     builder.create().show();
                 }
-            });
+            });*/
+
+           holder.linearLayout.setOnLongClickListener(new View.OnLongClickListener() {
+               @Override
+               public boolean onLongClick(View view) {
+                   AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                   builder.setTitle("Delete");
+                   builder.setMessage("Are you sure you want to delete this message?");
+                   //delete button set up
+                   builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                       @Override
+                       public void onClick(DialogInterface dialogInterface, int i) {
+                           deleteMessage(position);
+                       }
+                   });
+
+                   builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                       @Override
+                       public void onClick(DialogInterface dialogInterface, int i) {
+                           dialogInterface.dismiss();
+                       }
+                   });
+
+                   builder.create().show();
+                   return false;
+               }
+           });
 
             //setting status of message as seen/delivered
             if(position==chatList.size()-1)

@@ -42,6 +42,7 @@ import androidx.appcompat.widget.Toolbar;
 
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class HomeActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -88,7 +89,8 @@ public class HomeActivity extends AppCompatActivity
         //update token
         updateToken(FirebaseInstanceId.getInstance().getToken());
 
-        getSupportFragmentManager().beginTransaction().replace(R.id.container,new HomeFragment()).commit();
+        getSupportActionBar().setTitle("Users");
+        getSupportFragmentManager().beginTransaction().replace(R.id.container,new UsersFragment()).commit();
 
         checkuserStatus();
     }
@@ -142,8 +144,9 @@ public class HomeActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_home) {
-            getSupportActionBar().setTitle("Home");
-            getSupportFragmentManager().beginTransaction().replace(R.id.container,new HomeFragment()).commit();
+           /* getSupportActionBar().setTitle("Home");
+            getSupportFragmentManager().beginTransaction().replace(R.id.container,new HomeFragment()).commit();*/
+            Toast.makeText(this, "Screen Not Ready Yet", Toast.LENGTH_SHORT).show();
         } else if (id == R.id.nav_profile) {
             getSupportActionBar().setTitle("Profile");
             getSupportFragmentManager().beginTransaction().replace(R.id.container,new ProfileFragment()).commit();
@@ -151,8 +154,9 @@ public class HomeActivity extends AppCompatActivity
             getSupportActionBar().setTitle("Users");
             getSupportFragmentManager().beginTransaction().replace(R.id.container,new UsersFragment()).commit();
         }  else if (id == R.id.nav_message) {
-            getSupportActionBar().setTitle("Chats");
-            getSupportFragmentManager().beginTransaction().replace(R.id.container,new ChatFragment()).commit();
+            /*getSupportActionBar().setTitle("Chats");
+            getSupportFragmentManager().beginTransaction().replace(R.id.container,new ChatFragment()).commit();*/
+            Toast.makeText(this, "Screen Not Ready Yet", Toast.LENGTH_SHORT).show();
         }  else if (id == R.id.nav_logout) {
             mAuth.signOut();
             Intent i = new Intent(HomeActivity.this,LoginActivity.class);

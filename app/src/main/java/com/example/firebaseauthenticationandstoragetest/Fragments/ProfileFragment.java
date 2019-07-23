@@ -12,17 +12,20 @@ import androidx.fragment.app.Fragment;
 
 import android.provider.MediaStore;
 import android.util.Log;
+import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.firebaseauthenticationandstoragetest.R;
 import com.example.firebaseauthenticationandstoragetest.SignUpActivity;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -72,6 +75,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
     EditText etDName, etEmail;
     Button btnEditSave;
     ImageView profileIV;
+    ProgressBar progressBar;
     private boolean check = false;
 
     //Storage path
@@ -117,6 +121,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
         etEmail = view.findViewById(R.id.etEmail);
         btnEditSave = view.findViewById(R.id.btnEditSave);
         profileIV = view.findViewById(R.id.profileIV);
+        progressBar = view.findViewById(R.id.progressBar3);
         FloatingActionButton fab = getActivity().findViewById(R.id.fab);
         fab.hide();
 
@@ -221,6 +226,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
                                         @Override
                                         public void onSuccess(Void aVoid) {
                                             //do nothing
+
                                         }
                                     })
                                     .addOnFailureListener(new OnFailureListener() {
@@ -255,31 +261,59 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
                 {
                     etDName.setEnabled(true);
                     etEmail.setEnabled(true);
+                    profileIV.setEnabled(true);
                     btnEditSave.setText("Save");
                     check = true;
+                    Toast.makeText(getActivity(), "Edit Profile", Toast.LENGTH_SHORT).show();
+                    profileIV.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            ImageChooser();
+                        }
+                    });
                 }
                 else{
+                    progressBar.setVisibility(View.VISIBLE);
                     saveInfo();
                     etDName.setEnabled(false);
                     etEmail.setEnabled(false);
+                    profileIV.setClickable(true);
                     btnEditSave.setText("Edit");
                     check = false;
-                    Toast.makeText(getActivity(), "Info Updated!", Toast.LENGTH_SHORT).show();
                 }
                 break;
 
-            case R.id.profileIV:
-                ImageChooser();
-                break;
         }
     }
 
     private void saveInfo() {
+
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         String id = user.getUid();
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Users");
         String name = etDName.getText().toString().trim();
         String email = etEmail.getText().toString().trim();
+
+        if(name.isEmpty())
+        {
+            etDName.setError("Display Name Cannot Be Empty");
+            etDName.requestFocus();
+            return;
+        }
+
+        if(email.isEmpty())
+        {
+            etEmail.setError("Email Cannot Be Email");
+            etEmail.requestFocus();
+            return;
+        }
+
+        if(!Patterns.EMAIL_ADDRESS.matcher(email).matches())
+        {
+            etEmail.setError("Please Enter A Valid Email!");
+            etEmail.requestFocus();
+            return;
+        }
 
         HashMap<String,Object> h = new HashMap<>();
         h.put("name",name);
@@ -291,7 +325,13 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
         }
         if(user != null)
         {
-            ref.child(id).updateChildren(h);
+            ref.child(id).updateChildren(h).addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    progressBar.setVisibility(View.GONE);
+                    Toast.makeText(getActivity(), "Profile Updated!", Toast.LENGTH_SHORT).show();
+                }
+            });
         }
     }
 
