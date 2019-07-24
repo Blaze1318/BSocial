@@ -315,7 +315,7 @@ public class ChatActivity extends AppCompatActivity {
                 for (DataSnapshot ds : dataSnapshot.getChildren())
                 {
                     Token token = ds.getValue(Token.class);
-                    Data data = new Data(myId,name+":"+msg,"New Message",recipientId,R.drawable.ic_mood_black_24dp);
+                    Data data = new Data(myId,name+":"+msg,"New Message",recipientId,R.drawable.logo);
                     Sender sender = new Sender(data,token.getToken());
 
                     service.sendNotification(sender)

@@ -19,8 +19,10 @@
         <activity
             android:name=".HomeActivity"
             android:label="@string/title_activity_home"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".ForgotPasswordActivity" />
+            android:theme="@style/AppTheme.NoActionBar"
+            android:configChanges="keyboardHidden|screenSize|orientation"/>
+        <activity android:name=".ForgotPasswordActivity"
+            android:configChanges="keyboardHidden|screenSize|orientation"/>
         <activity android:name=".SignUpActivity" />
         <activity android:name=".LoginActivity" />
         <activity android:name=".SplashScreenActivity"
