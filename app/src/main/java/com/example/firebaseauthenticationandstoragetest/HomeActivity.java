@@ -6,6 +6,7 @@ import android.os.Bundle;
 
 
 import com.example.firebaseauthenticationandstoragetest.Fragments.ChatFragment;
+import com.example.firebaseauthenticationandstoragetest.Fragments.FriendRequestFragment;
 import com.example.firebaseauthenticationandstoragetest.Fragments.HomeFragment;
 import com.example.firebaseauthenticationandstoragetest.Fragments.UsersFragment;
 import com.example.firebaseauthenticationandstoragetest.Fragments.ProfileFragment;
@@ -162,9 +163,9 @@ public class HomeActivity extends AppCompatActivity
             getSupportFragmentManager().beginTransaction().replace(R.id.container,new FriendsFragment()).commit();*/
             Toast.makeText(this, "Screen Not Ready Yet", Toast.LENGTH_SHORT).show();
         }else if (id == R.id.nav_friendrequest) {
-            /*getSupportActionBar().setTitle("Friend Request");
-            getSupportFragmentManager().beginTransaction().replace(R.id.container,new FriendRequestFragment()).commit();*/
-            Toast.makeText(this, "Screen Not Ready Yet", Toast.LENGTH_SHORT).show();
+            getSupportActionBar().setTitle("Friend Request");
+            getSupportFragmentManager().beginTransaction().replace(R.id.container,new FriendRequestFragment()).commit();
+            //Toast.makeText(this, "Screen Not Ready Yet", Toast.LENGTH_SHORT).show();
         }  else if (id == R.id.nav_logout) {
             mAuth.signOut();
             Intent i = new Intent(HomeActivity.this,LoginActivity.class);

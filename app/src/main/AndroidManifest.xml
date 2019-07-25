@@ -14,7 +14,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".UsersProfileActivity"
-            android:parentActivityName=".HomeActivity"></activity>
+            android:parentActivityName=".HomeActivity"
+            android:configChanges="keyboardHidden|screenSize|orientation"></activity>
         <activity
             android:name=".ChatActivity"
             android:parentActivityName=".HomeActivity"
