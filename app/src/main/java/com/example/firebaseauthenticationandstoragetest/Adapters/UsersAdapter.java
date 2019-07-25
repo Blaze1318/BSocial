@@ -1,6 +1,8 @@
 package com.example.firebaseauthenticationandstoragetest.Adapters;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.firebaseauthenticationandstoragetest.ChatActivity;
 import com.example.firebaseauthenticationandstoragetest.Models.UsersModel;
 import com.example.firebaseauthenticationandstoragetest.R;
+import com.example.firebaseauthenticationandstoragetest.UsersProfileActivity;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -60,9 +63,30 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.MyHolder> {
         holder.mAvatarIV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(context, ChatActivity.class);
-                intent.putExtra("userid",userid);
-                context.startActivity(intent);
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                builder.setTitle("");
+                builder.setMessage("View Profile Or Chat");
+                //delete button set up
+                builder.setPositiveButton("Chat", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Intent intent = new Intent(context, ChatActivity.class);
+                        intent.putExtra("userid",userid);
+                        context.startActivity(intent);
+                    }
+                });
+
+                builder.setNegativeButton("View Profile", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Intent intent = new Intent(context, UsersProfileActivity.class);
+                        intent.putExtra("userid",userid);
+                        context.startActivity(intent);
+                    }
+                });
+
+                builder.create().show();
             }
         });
     }

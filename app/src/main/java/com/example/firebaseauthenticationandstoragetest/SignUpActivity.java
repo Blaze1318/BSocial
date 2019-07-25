@@ -26,7 +26,6 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
@@ -63,7 +62,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
         FirebaseApp.initializeApp(this);
         setContentView(R.layout.activity_sign_up);
         mAuth = FirebaseAuth.getInstance();
-        etEmail = findViewById(R.id.etEmail);
+        etEmail = findViewById(R.id.etUsersEmail);
         etRemail = findViewById(R.id.etRemail);
         etPassword = findViewById(R.id.etPassword);
         etRepassword = findViewById(R.id.etRepassword);

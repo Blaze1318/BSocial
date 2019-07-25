@@ -16,7 +16,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <com.blogspot.atifsoftwares.circularimageview.CircularImageView
-            android:id="@+id/profileIV"
+            android:id="@+id/usersprofileIV"
             android:layout_width="35dp"
             android:layout_height="35dp"
             android:scaleType="centerCrop"

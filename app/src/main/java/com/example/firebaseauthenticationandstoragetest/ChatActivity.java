@@ -3,7 +3,6 @@ package com.example.firebaseauthenticationandstoragetest;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.view.MenuItemCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -14,14 +13,11 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.format.DateFormat;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Adapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -91,7 +87,7 @@ public class ChatActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         toolbar.setTitle("");
         recyclerView = findViewById(R.id.recycleChat);
-        profileIV = findViewById(R.id.profileIV);
+        profileIV = findViewById(R.id.usersprofileIV);
         nameTV = findViewById(R.id.tvUsern);
         userstatusTV = findViewById(R.id.userStatus);
         chatET = findViewById(R.id.messageEt);

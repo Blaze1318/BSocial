@@ -7,7 +7,6 @@ import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.fragment.app.Fragment;
 
 import android.provider.MediaStore;
@@ -20,11 +19,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.firebaseauthenticationandstoragetest.R;
-import com.example.firebaseauthenticationandstoragetest.SignUpActivity;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -117,16 +114,16 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
-        etDName = view.findViewById(R.id.etDName);
-        etEmail = view.findViewById(R.id.etEmail);
+        etDName = view.findViewById(R.id.etUsersDName);
+        etEmail = view.findViewById(R.id.etUsersEmail);
         btnEditSave = view.findViewById(R.id.btnEditSave);
-        profileIV = view.findViewById(R.id.profileIV);
+        profileIV = view.findViewById(R.id.usersprofileIV);
         progressBar = view.findViewById(R.id.progressBar3);
         FloatingActionButton fab = getActivity().findViewById(R.id.fab);
         fab.hide();
 
         view.findViewById(R.id.btnEditSave).setOnClickListener(this);
-        view.findViewById(R.id.profileIV).setOnClickListener(this);
+        view.findViewById(R.id.usersprofileIV).setOnClickListener(this);
 
         loadUserinfo();
         return view;

@@ -157,6 +157,14 @@ public class HomeActivity extends AppCompatActivity
             /*getSupportActionBar().setTitle("Chats");
             getSupportFragmentManager().beginTransaction().replace(R.id.container,new ChatFragment()).commit();*/
             Toast.makeText(this, "Screen Not Ready Yet", Toast.LENGTH_SHORT).show();
+        }else if (id == R.id.nav_friends) {
+            /*getSupportActionBar().setTitle("Friends");
+            getSupportFragmentManager().beginTransaction().replace(R.id.container,new FriendsFragment()).commit();*/
+            Toast.makeText(this, "Screen Not Ready Yet", Toast.LENGTH_SHORT).show();
+        }else if (id == R.id.nav_friendrequest) {
+            /*getSupportActionBar().setTitle("Friend Request");
+            getSupportFragmentManager().beginTransaction().replace(R.id.container,new FriendRequestFragment()).commit();*/
+            Toast.makeText(this, "Screen Not Ready Yet", Toast.LENGTH_SHORT).show();
         }  else if (id == R.id.nav_logout) {
             mAuth.signOut();
             Intent i = new Intent(HomeActivity.this,LoginActivity.class);
