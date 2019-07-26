@@ -74,6 +74,7 @@ public class FriendRequestFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+
     }
 
     @Override
@@ -88,11 +89,11 @@ public class FriendRequestFragment extends Fragment {
 
         friendRequestModelList = new ArrayList<>();
 
-        getAllUsers();
+        getAllRequest();
         return view;
     }
 
-    private void getAllUsers() {
+    private void getAllRequest() {
         //get current user
         final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
@@ -108,7 +109,7 @@ public class FriendRequestFragment extends Fragment {
                     FriendRequestModel model = ds.getValue(FriendRequestModel.class);
 
                     //get all users except currently signed in one
-                    if(!model.getRequestFrom().equals(user.getUid()))
+                    if(model.getRequestTo().equals(user.getUid()) && model.getStatus().equals("pending"))
                     {
                         friendRequestModelList.add(model);
                     }

@@ -1,18 +1,26 @@
 package com.example.firebaseauthenticationandstoragetest.Models;
 
 public class FriendRequestModel {
-    String requestTo, requestFrom,requesterName,requesterImage,requesterEmail,status;
+    String requestTo, requestFrom,requesterName,requesterImage,requesterEmail,requestKey,status;
 
     public FriendRequestModel() {
     }
 
-    public FriendRequestModel(String requestTo, String requestFrom, String requesterName, String requesterImage, String requesterEmail, String status) {
+    public FriendRequestModel(String requestTo, String requestFrom, String requesterName, String requesterImage, String requesterEmail,String requestKey ,String status) {
         this.requestTo = requestTo;
         this.requestFrom = requestFrom;
         this.requesterName = requesterName;
         this.requesterImage = requesterImage;
         this.requesterEmail = requesterEmail;
         this.status = status;
+    }
+
+    public String getRequestKey() {
+        return requestKey;
+    }
+
+    public void setRequestKey(String requestKey) {
+        this.requestKey = requestKey;
     }
 
     public String getRequestTo() {

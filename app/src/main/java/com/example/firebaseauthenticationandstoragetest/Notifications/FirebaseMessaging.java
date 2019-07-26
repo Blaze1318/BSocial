@@ -36,9 +36,7 @@ public class FirebaseMessaging extends FirebaseMessagingService {
        // String msg = remoteMessage.getData().get("message");
         String user = remoteMessage.getData().get("user");
 
-        Log.d("Sent: ", sent);
-        Log.d("User: ", user);
-        //Log.d("Message",msg);
+
 
         FirebaseUser fUser = FirebaseAuth.getInstance().getCurrentUser();
         if(fUser != null )
