@@ -7,6 +7,7 @@ import android.os.Bundle;
 
 import com.example.firebaseauthenticationandstoragetest.Fragments.ChatFragment;
 import com.example.firebaseauthenticationandstoragetest.Fragments.FriendRequestFragment;
+import com.example.firebaseauthenticationandstoragetest.Fragments.FriendsFragment;
 import com.example.firebaseauthenticationandstoragetest.Fragments.HomeFragment;
 import com.example.firebaseauthenticationandstoragetest.Fragments.UsersFragment;
 import com.example.firebaseauthenticationandstoragetest.Fragments.ProfileFragment;
@@ -159,9 +160,9 @@ public class HomeActivity extends AppCompatActivity
             getSupportFragmentManager().beginTransaction().replace(R.id.container,new ChatFragment()).commit();*/
             Toast.makeText(this, "Screen Not Ready Yet", Toast.LENGTH_SHORT).show();
         }else if (id == R.id.nav_friends) {
-            /*getSupportActionBar().setTitle("Friends");
-            getSupportFragmentManager().beginTransaction().replace(R.id.container,new FriendsFragment()).commit();*/
-            Toast.makeText(this, "Screen Not Ready Yet", Toast.LENGTH_SHORT).show();
+            getSupportActionBar().setTitle("Friends");
+            getSupportFragmentManager().beginTransaction().replace(R.id.container,new FriendsFragment()).commit();
+           // Toast.makeText(this, "Screen Not Ready Yet", Toast.LENGTH_SHORT).show();
         }else if (id == R.id.nav_friendrequest) {
             getSupportActionBar().setTitle("Friend Request");
             getSupportFragmentManager().beginTransaction().replace(R.id.container,new FriendRequestFragment()).commit();

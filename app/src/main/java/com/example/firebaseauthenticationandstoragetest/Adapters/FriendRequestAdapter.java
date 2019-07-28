@@ -1,9 +1,6 @@
 package com.example.firebaseauthenticationandstoragetest.Adapters;
 
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -55,6 +52,7 @@ public class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdap
     public void onBindViewHolder(@NonNull MyHolder holder, int position) {
         //get data
         final String userid = friendRequestModelList.get(position).getRequestFrom();
+        final String userid2 = friendRequestModelList.get(position).getRequestTo();
         final String userProfileimage = friendRequestModelList.get(position).getRequesterImage();
         String userName = friendRequestModelList.get(position).getRequesterName();
         final String userEmail = friendRequestModelList.get(position).getRequesterEmail();
@@ -74,7 +72,7 @@ public class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdap
         holder.addIV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                addUser(key);
+                addUser(key,userid2,userid);
 
             }
         });
@@ -89,11 +87,12 @@ public class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdap
 
     }
 
-    private void addUser(final String key)
+    private void addUser(final String key,final String userid2,final String userid)
     {
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference("FriendRequest");
         Query query = ref.orderByChild("requestKey").equalTo(key);
 
+        //update friend request to accepted
        query.addValueEventListener(new ValueEventListener() {
            @Override
            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -105,12 +104,7 @@ public class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdap
                        HashMap<String,Object> requestUpdate = new HashMap<>();
                        requestUpdate.put("status","accepted");
 
-                       ds.getRef().updateChildren(requestUpdate).addOnSuccessListener(new OnSuccessListener<Void>() {
-                           @Override
-                           public void onSuccess(Void aVoid) {
-                               Toast.makeText(context, "Request Accepted", Toast.LENGTH_SHORT).show();
-                           }
-                       });
+                       ds.getRef().updateChildren(requestUpdate);
                    }
                }
            }
@@ -120,6 +114,47 @@ public class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdap
 
            }
        });
+
+        final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users");
+
+        Query query2 = reference.orderByChild("userid").equalTo(userid2);
+        //create hidden friend request for current user accepting
+        query2.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot ds : dataSnapshot.getChildren())
+                {
+                    String name = ""+ds.child("name").getValue();
+                    String email = ""+ds.child("email").getValue();
+                    String image = ""+ds.child("image").getValue();
+
+                    DatabaseReference reff = FirebaseDatabase.getInstance().getReference();
+                    HashMap<String,Object> request = new HashMap<>();
+                    request.put("requestTo",userid);
+                    request.put("requestFrom",user.getUid());
+                    request.put("requesterName",name);
+                    request.put("requesterImage",image);
+                    request.put("requesterEmail",email);
+                    request.put("requestKey",key);
+                    request.put("status","accepted");
+
+                    reff.child("FriendRequest").push().setValue(request).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            Toast.makeText(context, "Friend Added", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+
     }
 
     private void denyUser(final String key)
@@ -145,6 +180,8 @@ public class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdap
                             }
                         });
                     }
+
+
                 }
             }
 
@@ -171,8 +208,8 @@ public class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdap
         {
             super(itemView);
 
-            mAvatarIV = itemView.findViewById(R.id.requestProfileIV);
-            mNameTV = itemView.findViewById(R.id.requesteenameTV);
+            mAvatarIV = itemView.findViewById(R.id.friendProfileIV);
+            mNameTV = itemView.findViewById(R.id.friendnameTV);
             mEmailTV = itemView.findViewById(R.id.requesteeEmailTV);
             denyIV = itemView.findViewById(R.id.deleteIV);
             addIV = itemView.findViewById(R.id.addIV);

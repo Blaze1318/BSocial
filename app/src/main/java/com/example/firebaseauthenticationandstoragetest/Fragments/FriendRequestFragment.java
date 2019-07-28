@@ -89,6 +89,7 @@ public class FriendRequestFragment extends Fragment {
 
         friendRequestModelList = new ArrayList<>();
 
+        //populates friend request screen with all request to the user
         getAllRequest();
         return view;
     }

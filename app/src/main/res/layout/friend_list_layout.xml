@@ -35,13 +35,13 @@
             android:layout_marginTop="16dp"
             android:layout_marginEnd="8dp"
             android:text="Name"
-            app:layout_constraintEnd_toStartOf="@+id/deleteIV"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toEndOf="@+id/friendProfileIV"
             app:layout_constraintTop_toTopOf="@+id/friendProfileIV" />
 
         <TextView
-            android:id="@+id/requesteeEmailTV"
+            android:id="@+id/friendEmailTV"
             android:layout_width="wrap_content"
             android:layout_height="16dp"
             android:layout_marginTop="16dp"
@@ -52,26 +52,5 @@
             app:layout_constraintStart_toStartOf="@+id/friendnameTV"
             app:layout_constraintTop_toBottomOf="@+id/friendnameTV" />
 
-        <ImageView
-            android:id="@+id/deleteIV"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="24dp"
-            android:layout_marginBottom="8dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/addIV"
-            app:layout_constraintTop_toTopOf="@+id/friendnameTV"
-            app:layout_constraintVertical_bias="0.0"
-            app:srcCompat="@drawable/ic_clear_black_24dp" />
-
-        <ImageView
-            android:id="@+id/addIV"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            app:layout_constraintBottom_toBottomOf="@+id/deleteIV"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/deleteIV"
-            app:srcCompat="@drawable/ic_add_black_24dp" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>
