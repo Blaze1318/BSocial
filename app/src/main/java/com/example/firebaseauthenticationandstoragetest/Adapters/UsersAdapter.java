@@ -55,6 +55,7 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.MyHolder> {
     Context context;
     List<UsersModel> usersList;
     APIService service;
+    private String image,email,name,key;
 
     //constructor
     public UsersAdapter(Context context, List<UsersModel> usersList) {
@@ -133,94 +134,10 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.MyHolder> {
           public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
               for(DataSnapshot ds : dataSnapshot.getChildren())
               {
-                  final String image = ""+ds.child("image").getValue();
-                  final String email = ""+ds.child("email").getValue();
-                  final  String name = ""+ds.child("name").getValue();
-                  final String key = userid+myid;
-
-
-                  DatabaseReference nullRef = FirebaseDatabase.getInstance().getReference();
-                  nullRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                      @Override
-                      public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                          if(dataSnapshot.hasChild("FriendRequest"))
-                          {
-                              DatabaseReference validRef = FirebaseDatabase.getInstance().getReference("FriendRequest");
-                              Query query = validRef.orderByChild("status").equalTo("pending");
-
-                              query.addValueEventListener(new ValueEventListener() {
-                                  @Override
-                                  public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                      for(DataSnapshot ds : dataSnapshot.getChildren())
-                                      {
-                                          FriendRequestModel model = ds.getValue(FriendRequestModel.class);
-                                          if((model.getRequestTo().equals(userid) && model.getRequestFrom().equals(myid) && model.getStatus().equals("pending"))
-                                                  || (model.getRequestTo().equals(myid) && model.getRequestFrom().equals(userid) && model.getStatus().equals("pending")))
-                                          {
-                                              Toast.makeText(context, "Friend Request Already Sent or Received", Toast.LENGTH_SHORT).show();
-                                          }
-                                          else if((model.getRequestTo().equals(userid) && model.getRequestFrom().equals(myid) && model.getStatus().equals("accepted"))
-                                                  || (model.getRequestTo().equals(myid) && model.getRequestFrom().equals(userid) && model.getStatus().equals("accepted")))
-                                          {
-                                              Toast.makeText(context, "You Are Already Friends!", Toast.LENGTH_SHORT).show();
-                                          }
-                                          else{
-                                              DatabaseReference reff = FirebaseDatabase.getInstance().getReference();
-                                              HashMap<String,Object> request = new HashMap<>();
-                                              request.put("requestTo",userid);
-                                              request.put("requestFrom",myid);
-                                              request.put("requesterName",name);
-                                              request.put("requesterImage",image);
-                                              request.put("requesterEmail",email);
-                                              request.put("requestKey",key);
-                                              request.put("status","pending");
-
-                                              reff.child("FriendRequest").push().setValue(request).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                  @Override
-                                                  public void onComplete(@NonNull Task<Void> task) {
-                                                      Toast.makeText(context, "Friend Request Sent", Toast.LENGTH_SHORT).show();
-                                                      senNotification(myid,userid,name);
-                                                  }
-                                              });
-                                          }
-                                      }
-                                  }
-
-                                  @Override
-                                  public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                                  }
-                              });
-                          }
-                          else{
-                              DatabaseReference reff = FirebaseDatabase.getInstance().getReference();
-                              HashMap<String,Object> request = new HashMap<>();
-                              request.put("requestTo",userid);
-                              request.put("requestFrom",myid);
-                              request.put("requesterName",name);
-                              request.put("requesterImage",image);
-                              request.put("requesterEmail",email);
-                              request.put("requestKey",key);
-                              request.put("status","pending");
-
-                              reff.child("FriendRequest").push().setValue(request).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                  @Override
-                                  public void onComplete(@NonNull Task<Void> task) {
-                                      Toast.makeText(context, "Friend Request Sent", Toast.LENGTH_SHORT).show();
-                                      senNotification(myid,userid,name);
-                                  }
-                              });
-                          }
-                      }
-
-                      @Override
-                      public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                      }
-                  });
-
-
-
+                   image = ""+ds.child("image").getValue();
+                   email = ""+ds.child("email").getValue();
+                   name = ""+ds.child("name").getValue();
+                   key = userid+myid;
               }
           }
 
@@ -230,7 +147,88 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.MyHolder> {
           }
       });
 
+        DatabaseReference nullRef = FirebaseDatabase.getInstance().getReference();
+        nullRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if(dataSnapshot.hasChild("FriendRequest"))
+                {
+                    DatabaseReference validRef = FirebaseDatabase.getInstance().getReference("FriendRequest");
+                    Query query = validRef.orderByChild("status").equalTo("pending");
+
+                    query.addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                            for(DataSnapshot ds : dataSnapshot.getChildren())
+                            {
+                                FriendRequestModel model = ds.getValue(FriendRequestModel.class);
+                                if((model.getRequestTo().equals(userid) && model.getRequestFrom().equals(myid) && model.getStatus().equals("pending"))
+                                        || (model.getRequestTo().equals(myid) && model.getRequestFrom().equals(userid) && model.getStatus().equals("pending")))
+                                {
+                                    Toast.makeText(context, "Friend Request Already Sent or Received", Toast.LENGTH_SHORT).show();
+                                }
+                                else{
+                                    DatabaseReference reff = FirebaseDatabase.getInstance().getReference();
+                                    HashMap<String,Object> request = new HashMap<>();
+                                    request.put("requestTo",userid);
+                                    request.put("requestFrom",myid);
+                                    request.put("requesterName",name);
+                                    request.put("requesterImage",image);
+                                    request.put("requesterEmail",email);
+                                    request.put("requestKey",key);
+                                    request.put("status","pending");
+
+                                    reff.child("FriendRequest").push().setValue(request).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            Toast.makeText(context, "Friend Request Sent", Toast.LENGTH_SHORT).show();
+                                            senNotification(myid,userid,name);
+                                        }
+                                    });
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                        }
+                    });
+                }
+                else{
+                    DatabaseReference reff = FirebaseDatabase.getInstance().getReference();
+                    HashMap<String,Object> request = new HashMap<>();
+                    request.put("requestTo",userid);
+                    request.put("requestFrom",myid);
+                    request.put("requesterName",name);
+                    request.put("requesterImage",image);
+                    request.put("requesterEmail",email);
+                    request.put("requestKey",key);
+                    request.put("status","pending");
+
+                    reff.child("FriendRequest").push().setValue(request).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            Toast.makeText(context, "Friend Request Sent", Toast.LENGTH_SHORT).show();
+                            senNotification(myid,userid,name);
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
     }
+
+    /* else if((model.getRequestTo().equals(userid) && model.getRequestFrom().equals(myid) && model.getStatus().equals("accepted"))
+            || (model.getRequestTo().equals(myid) && model.getRequestFrom().equals(userid) && model.getStatus().equals("accepted")))
+    {
+        Toast.makeText(context, "You Are Already Friends!", Toast.LENGTH_SHORT).show();
+    }*/
 
     private void senNotification(final String userid,final String recipientId,final  String name) {
         DatabaseReference allTokens = FirebaseDatabase.getInstance().getReference("Tokens");
