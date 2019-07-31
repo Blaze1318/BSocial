@@ -120,7 +120,7 @@ public class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdap
 
         Query query2 = reference.orderByChild("userid").equalTo(userid2);
         //create hidden friend request for current user accepting
-        query2.addValueEventListener(new ValueEventListener() {
+        query2.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot ds : dataSnapshot.getChildren())
@@ -162,7 +162,7 @@ public class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdap
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference("FriendRequest");
         Query query = ref.orderByChild("requestKey").equalTo(key);
 
-        query.addValueEventListener(new ValueEventListener() {
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot ds : dataSnapshot.getChildren())

@@ -138,6 +138,7 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.MyHolder> {
                    email = ""+ds.child("email").getValue();
                    name = ""+ds.child("name").getValue();
                    key = userid+myid;
+
               }
           }
 
@@ -156,14 +157,14 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.MyHolder> {
                     DatabaseReference validRef = FirebaseDatabase.getInstance().getReference("FriendRequest");
                     Query query = validRef.orderByChild("status").equalTo("pending");
 
-                    query.addValueEventListener(new ValueEventListener() {
+                    query.addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                             for(DataSnapshot ds : dataSnapshot.getChildren())
                             {
                                 FriendRequestModel model = ds.getValue(FriendRequestModel.class);
                                 if((model.getRequestTo().equals(userid) && model.getRequestFrom().equals(myid) && model.getStatus().equals("pending"))
-                                        || (model.getRequestTo().equals(myid) && model.getRequestFrom().equals(userid) && model.getStatus().equals("pending")))
+                                        || (model.getRequestTo().equals(myid) && model.getRequestFrom().equals(userid) && model.getStatus().equals("pending") ))
                                 {
                                     Toast.makeText(context, "Friend Request Already Sent or Received", Toast.LENGTH_SHORT).show();
                                 }
@@ -186,6 +187,7 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.MyHolder> {
                                         }
                                     });
                                 }
+
                             }
                         }
 
@@ -222,13 +224,29 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.MyHolder> {
             }
         });
 
+        DatabaseReference acceptRef = FirebaseDatabase.getInstance().getReference("FriendRequest");
+        Query query3 = acceptRef.orderByChild("status").equalTo("accepted");
+
+        query3.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for(DataSnapshot ds : dataSnapshot.getChildren()) {
+                    FriendRequestModel model = ds.getValue(FriendRequestModel.class);
+                    if ((model.getRequestTo().equals(userid) && model.getRequestFrom().equals(myid) && model.getStatus().equals("accepted"))
+                            || (model.getRequestTo().equals(myid) && model.getRequestFrom().equals(userid) && model.getStatus().equals("accepted"))) {
+                        Toast.makeText(context, "Your Already Friends!", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
     }
 
-    /* else if((model.getRequestTo().equals(userid) && model.getRequestFrom().equals(myid) && model.getStatus().equals("accepted"))
-            || (model.getRequestTo().equals(myid) && model.getRequestFrom().equals(userid) && model.getStatus().equals("accepted")))
-    {
-        Toast.makeText(context, "You Are Already Friends!", Toast.LENGTH_SHORT).show();
-    }*/
 
     private void senNotification(final String userid,final String recipientId,final  String name) {
         DatabaseReference allTokens = FirebaseDatabase.getInstance().getReference("Tokens");
