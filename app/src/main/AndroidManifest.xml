@@ -13,13 +13,15 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".UsersProfileActivity"
-            android:parentActivityName=".HomeActivity"
-            android:configChanges="keyboardHidden|screenSize|orientation"></activity>
+        <activity android:name=".ChangePasswordActivity"></activity>
+        <activity
+            android:name=".UsersProfileActivity"
+            android:configChanges="keyboardHidden|screenSize|orientation"
+            android:parentActivityName=".HomeActivity" />
         <activity
             android:name=".ChatActivity"
             android:parentActivityName=".HomeActivity"
-            android:windowSoftInputMode="adjustResize|stateHidden"/>
+            android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity
             android:name=".HomeActivity"
             android:configChanges="keyboardHidden|screenSize|orientation"
@@ -28,9 +30,10 @@
         <activity
             android:name=".ForgotPasswordActivity"
             android:configChanges="keyboardHidden|screenSize|orientation"
-            android:parentActivityName=".LoginActivity"/>
-        <activity android:name=".SignUpActivity"
-            android:parentActivityName=".LoginActivity"/>
+            android:parentActivityName=".LoginActivity" />
+        <activity
+            android:name=".SignUpActivity"
+            android:parentActivityName=".LoginActivity" />
         <activity android:name=".LoginActivity" />
         <activity
             android:name=".SplashScreenActivity"

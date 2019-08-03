@@ -3,6 +3,9 @@ package com.example.firebaseauthenticationandstoragetest;
 import android.content.Intent;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.preference.PreferenceManager;
+
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Patterns;
 import android.view.View;
@@ -22,6 +25,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     EditText usernameText, passwordText;
     ProgressBar progressBar;
     private FirebaseAuth mAuth;
+    SharedPreferences preferences;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,12 +38,14 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         usernameText = findViewById(R.id.etLoginEmail);
         passwordText = findViewById(R.id.etLoginpass);
         progressBar = findViewById(R.id.progressBar);
+
+        preferences = PreferenceManager.getDefaultSharedPreferences(this);
     }
 
     private void Loginuser()
     {
         String email = usernameText.getText().toString().trim();
-        String pass = passwordText.getText().toString().trim();
+        final String pass = passwordText.getText().toString().trim();
 
         if(email.isEmpty())
         {
@@ -75,6 +81,12 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 progressBar.setVisibility(View.GONE);
                 if(task.isSuccessful())
                 {
+                    //Saving user password for later use if needed
+                    SharedPreferences.Editor editor = preferences.edit();
+                    editor.putString("password",pass);
+                    editor.apply();
+
+                    //load home activity when login is successful
                     Toast.makeText(LoginActivity.this, "Login Successful!", Toast.LENGTH_SHORT).show();
                     final Intent i = new Intent(LoginActivity.this, HomeActivity.class);
                     i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);

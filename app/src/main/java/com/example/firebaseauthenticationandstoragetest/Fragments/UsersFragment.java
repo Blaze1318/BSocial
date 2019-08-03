@@ -15,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.SearchView;
@@ -100,6 +101,8 @@ public class UsersFragment extends Fragment {
         usersModels = new ArrayList<>();
 
         getAllUsers();
+
+
         return view;
     }
 
@@ -234,6 +237,8 @@ public class UsersFragment extends Fragment {
         });
 
     }
+
+
 
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
