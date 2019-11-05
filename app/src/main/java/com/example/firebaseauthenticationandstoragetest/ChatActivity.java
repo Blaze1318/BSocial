@@ -300,6 +300,45 @@ public class ChatActivity extends AppCompatActivity {
 
             }
         });
+
+        /* Updating chat list node */
+        final DatabaseReference refChat = FirebaseDatabase.getInstance().getReference("ChatList")
+                .child(myId)
+                .child(recipientId);
+
+        refChat.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (!dataSnapshot.exists())
+                {
+                    refChat.child("id").setValue(recipientId);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+        final DatabaseReference refChat2 = FirebaseDatabase.getInstance().getReference("ChatList")
+                .child(recipientId)
+                .child(myId);
+
+        refChat2.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (!dataSnapshot.exists())
+                {
+                    refChat2.child("id").setValue(myId);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
     }
 
     private void senNotification(final String recipientId,final  String name, final String msg) {

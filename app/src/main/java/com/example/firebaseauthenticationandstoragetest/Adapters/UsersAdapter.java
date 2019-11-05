@@ -94,7 +94,7 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.MyHolder> {
         holder.mAvatarIV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+/*
                 AlertDialog.Builder builder = new AlertDialog.Builder(context);
                 builder.setTitle("");
                 builder.setMessage("View Profile Or Add As A Friend");
@@ -102,7 +102,31 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.MyHolder> {
                 builder.setPositiveButton("Send Friend Request", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                      createfriendrequest(userid,userProfileimage);
+                      createfriendrequest(userid);
+                    }
+
+
+                });
+
+                builder.setNegativeButton("View Profile", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Intent intent = new Intent(context, UsersProfileActivity.class);
+                        intent.putExtra("userid",userid);
+                        context.startActivity(intent);
+                    }
+                });*/
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                builder.setTitle("");
+                builder.setMessage("View Profile Or Chat");
+                //delete button set up
+                builder.setPositiveButton("Chat", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Intent intent = new Intent(context, ChatActivity.class);
+                        intent.putExtra("userid",userid);
+                        context.startActivity(intent);
                     }
 
 
@@ -117,133 +141,39 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.MyHolder> {
                     }
                 });
 
+
                 builder.create().show();
             }
         });
     }
 
-    private void createfriendrequest(final String userid,String userProfilepic)
+    private void createfriendrequest(final String userid)
     {
        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-       final DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Users");
+       final DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Friends");
        final String myid = user.getUid();
-      Query query = ref.orderByChild("userid").equalTo(myid);
 
-      query.addValueEventListener(new ValueEventListener() {
-          @Override
-          public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-              for(DataSnapshot ds : dataSnapshot.getChildren())
-              {
-                   image = ""+ds.child("image").getValue();
-                   email = ""+ds.child("email").getValue();
-                   name = ""+ds.child("name").getValue();
-                   key = userid+myid;
+       Query query = ref.orderByChild(myid).equalTo(myid);
 
-              }
-          }
+       query.addValueEventListener(new ValueEventListener() {
+           @Override
+           public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+               if(dataSnapshot.hasChild(myid)){
+                   final DatabaseReference refFriend = ref.child(myid);
+               }
+               else{
+                   HashMap<Object,String> friends = new HashMap<>();
+                   friends.put(userid,"Pending");
 
-          @Override
-          public void onCancelled(@NonNull DatabaseError databaseError) {
+                   ref.child(myid).setValue(friends);
+               }
+           }
 
-          }
-      });
+           @Override
+           public void onCancelled(@NonNull DatabaseError databaseError) {
 
-        DatabaseReference nullRef = FirebaseDatabase.getInstance().getReference();
-        nullRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if(dataSnapshot.hasChild("FriendRequest"))
-                {
-                    DatabaseReference validRef = FirebaseDatabase.getInstance().getReference("FriendRequest");
-                    Query query = validRef.orderByChild("status").equalTo("pending");
-
-                    query.addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                            for(DataSnapshot ds : dataSnapshot.getChildren())
-                            {
-                                FriendRequestModel model = ds.getValue(FriendRequestModel.class);
-                                if((model.getRequestTo().equals(userid) && model.getRequestFrom().equals(myid) && model.getStatus().equals("pending"))
-                                        || (model.getRequestTo().equals(myid) && model.getRequestFrom().equals(userid) && model.getStatus().equals("pending") ))
-                                {
-                                    Toast.makeText(context, "Friend Request Already Sent or Received", Toast.LENGTH_SHORT).show();
-                                }
-                                else{
-                                    DatabaseReference reff = FirebaseDatabase.getInstance().getReference();
-                                    HashMap<String,Object> request = new HashMap<>();
-                                    request.put("requestTo",userid);
-                                    request.put("requestFrom",myid);
-                                    request.put("requesterName",name);
-                                    request.put("requesterImage",image);
-                                    request.put("requesterEmail",email);
-                                    request.put("requestKey",key);
-                                    request.put("status","pending");
-
-                                    reff.child("FriendRequest").push().setValue(request).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<Void> task) {
-                                            Toast.makeText(context, "Friend Request Sent", Toast.LENGTH_SHORT).show();
-                                            senNotification(myid,userid,name);
-                                        }
-                                    });
-                                }
-
-                            }
-                        }
-
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                        }
-                    });
-                }
-                else{
-                    DatabaseReference reff = FirebaseDatabase.getInstance().getReference();
-                    HashMap<String,Object> request = new HashMap<>();
-                    request.put("requestTo",userid);
-                    request.put("requestFrom",myid);
-                    request.put("requesterName",name);
-                    request.put("requesterImage",image);
-                    request.put("requesterEmail",email);
-                    request.put("requestKey",key);
-                    request.put("status","pending");
-
-                    reff.child("FriendRequest").push().setValue(request).addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            Toast.makeText(context, "Friend Request Sent", Toast.LENGTH_SHORT).show();
-                            senNotification(myid,userid,name);
-                        }
-                    });
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-
-        DatabaseReference acceptRef = FirebaseDatabase.getInstance().getReference("FriendRequest");
-        Query query3 = acceptRef.orderByChild("status").equalTo("accepted");
-
-        query3.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                for(DataSnapshot ds : dataSnapshot.getChildren()) {
-                    FriendRequestModel model = ds.getValue(FriendRequestModel.class);
-                    if ((model.getRequestTo().equals(userid) && model.getRequestFrom().equals(myid) && model.getStatus().equals("accepted"))
-                            || (model.getRequestTo().equals(myid) && model.getRequestFrom().equals(userid) && model.getStatus().equals("accepted"))) {
-                        Toast.makeText(context, "Your Already Friends!", Toast.LENGTH_SHORT).show();
-                    }
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
+           }
+       });
 
     }
 

@@ -5,10 +5,9 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 
 
-import com.example.firebaseauthenticationandstoragetest.Fragments.ChatFragment;
+import com.example.firebaseauthenticationandstoragetest.Fragments.ChatListFragment;
 import com.example.firebaseauthenticationandstoragetest.Fragments.FriendRequestFragment;
 import com.example.firebaseauthenticationandstoragetest.Fragments.FriendsFragment;
-import com.example.firebaseauthenticationandstoragetest.Fragments.HomeFragment;
 import com.example.firebaseauthenticationandstoragetest.Fragments.SettingsFragment;
 import com.example.firebaseauthenticationandstoragetest.Fragments.UsersFragment;
 import com.example.firebaseauthenticationandstoragetest.Fragments.ProfileFragment;
@@ -157,9 +156,9 @@ public class HomeActivity extends AppCompatActivity
             getSupportActionBar().setTitle("Users");
             getSupportFragmentManager().beginTransaction().replace(R.id.container,new UsersFragment()).commit();
         }  else if (id == R.id.nav_message) {
-            /*getSupportActionBar().setTitle("Chats");
-            getSupportFragmentManager().beginTransaction().replace(R.id.container,new ChatFragment()).commit();*/
-            Toast.makeText(this, "Screen Not Ready Yet", Toast.LENGTH_SHORT).show();
+            getSupportActionBar().setTitle("Chats");
+            getSupportFragmentManager().beginTransaction().replace(R.id.container,new ChatListFragment()).commit();
+            //Toast.makeText(this, "Screen Not Ready Yet", Toast.LENGTH_SHORT).show();
         }else if (id == R.id.nav_friends) {
             getSupportActionBar().setTitle("Friends");
             getSupportFragmentManager().beginTransaction().replace(R.id.container,new FriendsFragment()).commit();

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:contentPadding="3dp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+
+        <com.blogspot.atifsoftwares.circularimageview.CircularImageView
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:id="@+id/profileivIv"
+            android:src="@drawable/ic_mood_black_24dp"
+            />
+
+
+        <ImageView
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:id="@+id/onlineStatusIv"
+            />
+
+        <TextView
+            android:id="@+id/chatNameTv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="His Name"
+            android:textSize="18sp"
+            android:layout_marginStart="4dp"
+            android:textColor="@color/colorPrimary"
+            android:layout_toEndOf="@id/profileivIv"
+            android:layout_toRightOf="@id/profileivIv"
+            android:layout_marginLeft="3dp"
+            />
+
+        <TextView
+            android:id="@+id/lastmessageTv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="The Last Message"
+            android:textSize="16sp"
+            android:maxLines="2"
+            android:layout_toEndOf="@id/profileivIv"
+            android:layout_toRightOf="@id/profileivIv"
+            android:layout_marginStart="4dp"
+            android:layout_below="@id/chatNameTv" />
+
+    </RelativeLayout>
+
+
+</androidx.cardview.widget.CardView>
