@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.firebaseauthenticationandstoragetest.ChatActivity;
 import com.example.firebaseauthenticationandstoragetest.Models.FriendRequestModel;
+import com.example.firebaseauthenticationandstoragetest.Models.UsersModel;
 import com.example.firebaseauthenticationandstoragetest.R;
 import com.example.firebaseauthenticationandstoragetest.UsersProfileActivity;
 import com.squareup.picasso.Picasso;
@@ -24,12 +25,12 @@ import java.util.List;
 public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.MyHolder> {
 
     Context context;
-    List<FriendRequestModel> friendsList;
+    List<UsersModel> usersList;
 
-    public FriendsAdapter(Context context,List<FriendRequestModel> friendsList)
+    public FriendsAdapter(Context context,List<UsersModel> usersList)
     {
         this.context = context;
-        this.friendsList = friendsList;
+        this.usersList = usersList;
     }
 
     @NonNull
@@ -43,12 +44,11 @@ public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.MyHolder
     @Override
     public void onBindViewHolder(@NonNull MyHolder holder, int position) {
         //get data
-        //get data
-        final String userid = friendsList.get(position).getRequestFrom();
-        final String userProfileimage = friendsList.get(position).getRequesterImage();
-        String userName = friendsList.get(position).getRequesterName();
-        final String userEmail = friendsList.get(position).getRequesterEmail();
-        final String key = friendsList.get(position).getRequestKey();
+
+        final String userid = usersList.get(position).getUserid();
+        String userProfileimage = usersList.get(position).getImage();
+        String userName = usersList.get(position).getName();
+        final String userEmail = usersList.get(position).getEmail();
 
         holder.mNameTV.setText(userName);
         holder.mEmailTV.setText(userEmail);
@@ -97,7 +97,7 @@ public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.MyHolder
 
     @Override
     public int getItemCount() {
-        return friendsList.size();
+        return usersList.size();
     }
 
     //view holder class

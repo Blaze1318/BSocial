@@ -12,8 +12,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.firebaseauthenticationandstoragetest.Adapters.ChatListAdapter;
 import com.example.firebaseauthenticationandstoragetest.Adapters.FriendRequestAdapter;
 import com.example.firebaseauthenticationandstoragetest.Adapters.UsersAdapter;
+import com.example.firebaseauthenticationandstoragetest.Models.ChatListModel;
 import com.example.firebaseauthenticationandstoragetest.Models.FriendRequestModel;
 import com.example.firebaseauthenticationandstoragetest.Models.UsersModel;
 import com.example.firebaseauthenticationandstoragetest.R;
@@ -23,6 +25,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
@@ -30,7 +33,7 @@ import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link FriendRequestFragment#newInstance} factory method to
+ * Use the  factory method to
  * create an instance of this fragment.
  */
 public class FriendRequestFragment extends Fragment {
@@ -48,27 +51,21 @@ public class FriendRequestFragment extends Fragment {
     FriendRequestAdapter friendRequestAdapter;
     List<FriendRequestModel> friendRequestModelList;
 
+
+    FirebaseAuth firebaseAuth;
+
+    List<UsersModel> usersModels;
+    DatabaseReference databaseReference;
+    DatabaseReference friendRequestReference;
+    FirebaseUser currentUser;
+
+
+
     public FriendRequestFragment() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment FriendRequestFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static FriendRequestFragment newInstance(String param1, String param2) {
-        FriendRequestFragment fragment = new FriendRequestFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -83,43 +80,63 @@ public class FriendRequestFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_friend_request, container, false);
 
-        recyclerView = view.findViewById(R.id.recyclerFriendRequest);
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-
+        firebaseAuth = FirebaseAuth.getInstance();
+        currentUser = firebaseAuth.getCurrentUser();
         friendRequestModelList = new ArrayList<>();
 
+        Query friendRequestReference = FirebaseDatabase.getInstance().getReference("FriendsRequest").child(currentUser.getUid()).orderByChild("request_type").equalTo("received");
+        friendRequestReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                friendRequestModelList.clear();
+
+                for (DataSnapshot ds : dataSnapshot.getChildren())
+                {
+                    FriendRequestModel friendRequestModel = ds.getValue(FriendRequestModel.class);
+                    friendRequestModelList.add(friendRequestModel);
+                }
+                getAllRequest();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+        recyclerView = view.findViewById(R.id.recyclerFriendRequest);
+
+
+
+
         //populates friend request screen with all request to the user
-        getAllRequest();
+
         return view;
     }
 
     private void getAllRequest() {
-        //get current user
-        final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        usersModels = new ArrayList<>();
 
-        //get path to the database with the Users
-        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("FriendRequest");
-
-        ref.addValueEventListener(new ValueEventListener() {
+        databaseReference = FirebaseDatabase.getInstance().getReference("Users");
+        databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                friendRequestModelList.clear();
-                for(DataSnapshot ds : dataSnapshot.getChildren())
+                usersModels.clear();
+                for ( DataSnapshot ds : dataSnapshot.getChildren())
                 {
-                    FriendRequestModel model = ds.getValue(FriendRequestModel.class);
-
-                    //get all users except currently signed in one
-                    if(model.getRequestTo().equals(user.getUid()) && model.getStatus().equals("pending"))
+                    UsersModel usersModel = ds.getValue(UsersModel.class);
+                    for (FriendRequestModel friendRequestModel : friendRequestModelList)
                     {
-                        friendRequestModelList.add(model);
+                        if (usersModel.getUserid() != null && usersModel.getUserid().equals(friendRequestModel.getId())){
+                            usersModels.add(usersModel);
+                            break;
+                        }
                     }
 
                     //adapter
-                    friendRequestAdapter = new FriendRequestAdapter(getActivity(),friendRequestModelList);
-
-                    //set recyclerview
+                    friendRequestAdapter = new FriendRequestAdapter(getContext(),usersModels);
+                    //set adapter data
                     recyclerView.setAdapter(friendRequestAdapter);
+                    friendRequestAdapter.notifyDataSetChanged();
                 }
             }
 
@@ -128,6 +145,7 @@ public class FriendRequestFragment extends Fragment {
 
             }
         });
+
 
     }
 

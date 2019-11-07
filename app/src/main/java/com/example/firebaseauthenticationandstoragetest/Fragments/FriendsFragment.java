@@ -14,6 +14,8 @@ import android.view.ViewGroup;
 
 import com.example.firebaseauthenticationandstoragetest.Adapters.FriendsAdapter;
 import com.example.firebaseauthenticationandstoragetest.Models.FriendRequestModel;
+import com.example.firebaseauthenticationandstoragetest.Models.FriendsModel;
+import com.example.firebaseauthenticationandstoragetest.Models.UsersModel;
 import com.example.firebaseauthenticationandstoragetest.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -21,6 +23,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
@@ -28,7 +31,7 @@ import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link FriendsFragment#newInstance} factory method to
+ * Use the  factory method to
  * create an instance of this fragment.
  */
 public class FriendsFragment extends Fragment {
@@ -41,9 +44,6 @@ public class FriendsFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
-    RecyclerView recyclerView;
-    FriendsAdapter friendsAdapter;
-    List<FriendRequestModel> friendList;
 
 
 
@@ -51,29 +51,21 @@ public class FriendsFragment extends Fragment {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment FriendsFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static FriendsFragment newInstance(String param1, String param2) {
-        FriendsFragment fragment = new FriendsFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
     }
+    RecyclerView recyclerView;
+    FriendsAdapter friendsAdapter;
+    List<FriendsModel> friendList;
+
+    FirebaseAuth firebaseAuth;
+    DatabaseReference databaseReference;
+    FirebaseUser currentUser;
+
+    List<UsersModel> usersModels;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -81,43 +73,66 @@ public class FriendsFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_friends, container, false);
 
-        recyclerView = view.findViewById(R.id.recyclerFriends);
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+
 
         friendList = new ArrayList<>();
        // usersModels = new ArrayList<>();
 
-        loadAllFriends();
+        firebaseAuth = FirebaseAuth.getInstance();
+        currentUser = firebaseAuth.getCurrentUser();
+
+
+        Query friendsReference = FirebaseDatabase.getInstance().getReference("Friends").child(currentUser.getUid()).orderByChild("friends").equalTo("YES");
+        friendsReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                friendList.clear();
+
+                for (DataSnapshot ds : dataSnapshot.getChildren())
+                {
+                    FriendsModel friendsModel = ds.getValue(FriendsModel.class);
+                    friendList.add(friendsModel);
+                }
+                loadAllFriends();
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+        recyclerView = view.findViewById(R.id.recyclerFriends);
+
+
 
         return view;
     }
 
     private void loadAllFriends() {
-        final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        usersModels = new ArrayList<>();
 
-        //get path to the database with the Users
-        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("FriendRequest");
-
-        ref.addValueEventListener(new ValueEventListener() {
+        databaseReference = FirebaseDatabase.getInstance().getReference("Users");
+        databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                friendList.clear();
-                for(DataSnapshot ds : dataSnapshot.getChildren())
+                usersModels.clear();
+                for ( DataSnapshot ds : dataSnapshot.getChildren())
                 {
-                    FriendRequestModel model = ds.getValue(FriendRequestModel.class);
-
-                    //get all users tht have accepted current users friend request and populates friend list
-                    if(model.getRequestTo().equals(user.getUid())  && model.getStatus().equals("accepted") )
+                    UsersModel usersModel = ds.getValue(UsersModel.class);
+                    for (FriendsModel friendModel : friendList)
                     {
-                        friendList.add(model);
+                        if (usersModel.getUserid() != null && usersModel.getUserid().equals(friendModel.getId())){
+                            usersModels.add(usersModel);
+                            break;
+                        }
                     }
 
                     //adapter
-                    friendsAdapter = new FriendsAdapter(getActivity(),friendList);
-
-                    //set recyclerview
+                    friendsAdapter = new FriendsAdapter(getContext(),usersModels);
+                    //set adapter data
                     recyclerView.setAdapter(friendsAdapter);
+                    friendsAdapter.notifyDataSetChanged();
                 }
             }
 
@@ -126,6 +141,7 @@ public class FriendsFragment extends Fragment {
 
             }
         });
+
 
     }
 
