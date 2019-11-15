@@ -3,6 +3,7 @@ package com.example.firebaseauthenticationandstoragetest;
 import android.content.Intent;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -11,6 +12,8 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -42,6 +45,9 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
     private static final int CHOOSE_IMAGE = 101;
     ProgressBar progressBar;
 
+    private Animation aniSlidedown;
+    private ConstraintLayout layout;
+
     //Firebase
     private FirebaseAuth mAuth;
     private FirebaseDatabase database;
@@ -61,6 +67,12 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
         super.onCreate(savedInstanceState);
         FirebaseApp.initializeApp(this);
         setContentView(R.layout.activity_sign_up);
+
+        aniSlidedown = AnimationUtils.loadAnimation(getApplicationContext(),R.anim.slide_down);
+        layout = findViewById(R.id.SignUpActivity);
+        layout.setVisibility(View.VISIBLE);
+        layout.startAnimation(aniSlidedown);
+
         mAuth = FirebaseAuth.getInstance();
         etEmail = findViewById(R.id.etUsersEmail);
         etRemail = findViewById(R.id.etRemail);

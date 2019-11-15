@@ -13,6 +13,12 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.firebaseauthenticationandstoragetest.Models.FriendRequestModel;
 import com.example.firebaseauthenticationandstoragetest.Models.UsersModel;
+import com.example.firebaseauthenticationandstoragetest.Notifications.APIService;
+import com.example.firebaseauthenticationandstoragetest.Notifications.Client;
+import com.example.firebaseauthenticationandstoragetest.Notifications.Data;
+import com.example.firebaseauthenticationandstoragetest.Notifications.Response;
+import com.example.firebaseauthenticationandstoragetest.Notifications.Sender;
+import com.example.firebaseauthenticationandstoragetest.Notifications.Token;
 import com.example.firebaseauthenticationandstoragetest.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -31,6 +37,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+
 public class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdapter.MyHolder> {
     Context context;
     List<UsersModel> usersModels;
@@ -41,6 +50,9 @@ public class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdap
 
     //firebase user
     String myId;
+    APIService service;
+
+    String myName;
 
     public FriendRequestAdapter(Context context, List<UsersModel> usersModels) {
         this.context = context;
@@ -67,6 +79,8 @@ public class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdap
 
         holder.mNameTV.setText(userName);
         holder.mEmailTV.setText(userEmail);
+
+        service = Client.getRetrofit("https://fcm.googleapis.com/").create(APIService.class);
 
         try{
             Picasso.get().load(userImage).placeholder(R.drawable.ic_mood_black_24dp).into(holder.mAvatarIV);
@@ -135,7 +149,9 @@ public class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdap
                                         public void onComplete(@NonNull Task<Void> task) {
                                             if (task.isSuccessful())
                                             {
+                                                getName();
                                                 Toast.makeText(context, "Friend Request Denied", Toast.LENGTH_SHORT).show();
+                                                senNotification(recipientId,myName,"","Request Denied");
                                             }
                                         }
                                     });
@@ -172,6 +188,8 @@ public class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdap
                                             if (task.isSuccessful())
                                             {
                                                removeFriendRequest(senderId,recipientId);
+                                               getName();
+                                               senNotification(recipientId,myName,"","New Friend");
                                             }
                                         }
                                     });
@@ -199,5 +217,63 @@ public class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdap
                         }
                     }
                 });
+    }
+
+    private void senNotification(final String recipientId,final  String name, final String msg,final String title) {
+        DatabaseReference allTokens = FirebaseDatabase.getInstance().getReference("Tokens");
+        Query query = allTokens.orderByKey().equalTo(recipientId);
+        query.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot ds : dataSnapshot.getChildren())
+                {
+                    Token token = ds.getValue(Token.class);
+                    Data data = new Data(myId,name+":"+msg,title,recipientId,R.drawable.logo);
+                    Sender sender = new Sender(data,token.getToken());
+
+                    service.sendNotification(sender)
+                            .enqueue(new Callback<Response>() {
+                                @Override
+                                public void onResponse(Call<Response> call, retrofit2.Response<Response> response) {
+                                    //Toast.makeText(ChatActivity.this, ""+response.message(), Toast.LENGTH_SHORT).show();
+                                }
+
+                                @Override
+                                public void onFailure(Call<Response> call, Throwable t) {
+
+                                }
+                            });
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private void getName()
+    {
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Users");
+        final Query myQuery = databaseReference.orderByChild("userid").equalTo(myId);
+
+        //get users photo and name
+        myQuery.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                //get data
+                for(DataSnapshot ds : dataSnapshot.getChildren())
+                {
+                    myName = ""+ds.child("name").getValue();
+
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
     }
 }

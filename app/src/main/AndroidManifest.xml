@@ -3,6 +3,7 @@
     package="com.example.firebaseauthenticationandstoragetest">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.BLUETOOTH"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.VIBRATE" />
 
@@ -33,8 +34,12 @@
             android:parentActivityName=".LoginActivity" />
         <activity
             android:name=".SignUpActivity"
+            android:configChanges="keyboardHidden|screenSize|orientation"
+            android:windowSoftInputMode="stateHidden"
             android:parentActivityName=".LoginActivity" />
-        <activity android:name=".LoginActivity" />
+        <activity android:name=".LoginActivity"
+            android:configChanges="keyboardHidden|screenSize|orientation"
+            android:windowSoftInputMode="stateHidden"/>
         <activity
             android:name=".SplashScreenActivity"
             android:screenOrientation="portrait">

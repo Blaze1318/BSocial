@@ -1,9 +1,11 @@
 package com.example.firebaseauthenticationandstoragetest;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.format.DateFormat;
@@ -11,7 +13,15 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.Toast;
 
+import com.example.firebaseauthenticationandstoragetest.Notifications.APIService;
+import com.example.firebaseauthenticationandstoragetest.Notifications.Client;
+import com.example.firebaseauthenticationandstoragetest.Notifications.Data;
+import com.example.firebaseauthenticationandstoragetest.Notifications.Response;
+import com.example.firebaseauthenticationandstoragetest.Notifications.Sender;
+import com.example.firebaseauthenticationandstoragetest.Notifications.Token;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -26,6 +36,9 @@ import com.squareup.picasso.Picasso;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Locale;
+
+import retrofit2.Call;
+import retrofit2.Callback;
 
 public class UsersProfileActivity extends AppCompatActivity {
 
@@ -42,7 +55,13 @@ public class UsersProfileActivity extends AppCompatActivity {
     ImageView userImage;
     EditText userDname,userEmail;
 
+    private String myName ="";
+    private boolean isImageFitToScreen;
+
+
     Button sendFriendRequestButton;
+
+    APIService service;
 
     String CURRENT_STATE = "not_friends";
     @Override
@@ -69,6 +88,8 @@ public class UsersProfileActivity extends AppCompatActivity {
         databaseReference = firebaseDatabase.getReference("Users");
         friendRequest = FirebaseDatabase.getInstance().getReference("FriendsRequest");
         friends = FirebaseDatabase.getInstance().getReference("Friends");
+
+        service = Client.getRetrofit("https://fcm.googleapis.com/").create(APIService.class);
 
         //search user to get info
         Query userQuery = databaseReference.orderByChild("userid").equalTo(recipientId);
@@ -102,6 +123,27 @@ public class UsersProfileActivity extends AppCompatActivity {
             }
         });
 
+        final Query myQuery = databaseReference.orderByChild("userid").equalTo(senderId);
+
+        //get users photo and name
+        myQuery.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                //get data
+                for(DataSnapshot ds : dataSnapshot.getChildren())
+                {
+                    myName = ""+ds.child("name").getValue();
+
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+
         maintainButtonState();
 
         if (!senderId.equals(recipientId))
@@ -115,15 +157,57 @@ public class UsersProfileActivity extends AppCompatActivity {
                    }
                    else if(CURRENT_STATE.equals("request_sent"))
                    {
-                       cancelFriendRequest();
+                       AlertDialog.Builder builder = new  AlertDialog.Builder(getApplicationContext());
+                       builder.setTitle("Friend Request")
+                               .setMessage("Cancel Friend Request?")
+                               .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                   @Override
+                                   public void onClick(DialogInterface dialog, int which) {
+                                       cancelFriendRequest();
+                                   }
+                               })
+
+                               .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                   @Override
+                                   public void onClick(DialogInterface dialog, int which) {
+                                       //do nothing
+                                   }
+                               });
+
+                   }
+                   else if(CURRENT_STATE.equals("request_received"))
+                   {
+                       Toast.makeText(UsersProfileActivity.this, "Already Received Request From This User", Toast.LENGTH_SHORT).show();
                    }
                    else if (CURRENT_STATE.equals("friends"))
                    {
-                       removeFriend();
+                       AlertDialog.Builder builder = new  AlertDialog.Builder(getApplicationContext());
+                       builder.setTitle("Friends")
+                               .setMessage("Remove As A Friend?")
+                               .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                   @Override
+                                   public void onClick(DialogInterface dialog, int which) {
+                                       removeFriend();
+                                   }
+                               })
+
+                               .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                   @Override
+                                   public void onClick(DialogInterface dialog, int which) {
+                                       //do nothing
+                                   }
+                               });
                    }
                 }
             });
         }
+
+        userImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
     }
 
     private void removeFriend() {
@@ -144,6 +228,7 @@ public class UsersProfileActivity extends AppCompatActivity {
                                             {
                                                 CURRENT_STATE = "not_friends";
                                                 sendFriendRequestButton.setText("Send Friend Request");
+                                                senNotification(recipientId,myName,"");
                                             }
                                         }
                                     });
@@ -201,6 +286,11 @@ public class UsersProfileActivity extends AppCompatActivity {
                                             CURRENT_STATE = "request_sent";
                                             sendFriendRequestButton.setText("Cancel Friend Request");
                                         }
+                                        else if (request_type.equals("received"))
+                                        {
+                                            CURRENT_STATE = "request_received";
+                                            sendFriendRequestButton.setText("Request Received");
+                                        }
                                     }
                                 }
 
@@ -243,6 +333,7 @@ public class UsersProfileActivity extends AppCompatActivity {
                                             {
                                                 CURRENT_STATE = "request_sent";
                                                 sendFriendRequestButton.setText("Cancel Friend Request");
+                                                senNotification(recipientId,myName,"");
                                             }
                                         }
                                     });
@@ -251,4 +342,39 @@ public class UsersProfileActivity extends AppCompatActivity {
                 });
 
     }
+
+    private void senNotification(final String recipientId,final  String name, final String msg) {
+        DatabaseReference allTokens = FirebaseDatabase.getInstance().getReference("Tokens");
+        Query query = allTokens.orderByKey().equalTo(recipientId);
+        query.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot ds : dataSnapshot.getChildren())
+                {
+                    Token token = ds.getValue(Token.class);
+                    Data data = new Data(senderId,name+":"+msg,"New Friend Request",recipientId,R.drawable.logo);
+                    Sender sender = new Sender(data,token.getToken());
+
+                    service.sendNotification(sender)
+                            .enqueue(new Callback<Response>() {
+                                @Override
+                                public void onResponse(Call<Response> call, retrofit2.Response<Response> response) {
+                                    //Toast.makeText(ChatActivity.this, ""+response.message(), Toast.LENGTH_SHORT).show();
+                                }
+
+                                @Override
+                                public void onFailure(Call<Response> call, Throwable t) {
+
+                                }
+                            });
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
 }
